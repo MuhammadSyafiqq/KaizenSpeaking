@@ -1,0 +1,227 @@
+Index: app/src/main/res/navigation/mobile_navigation.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"utf-8\"?>\n<navigation xmlns:android=\"http://schemas.android.com/apk/res/android\"\n    xmlns:app=\"http://schemas.android.com/apk/res-auto\"\n    xmlns:tools=\"http://schemas.android.com/tools\"\n    android:id=\"@+id/mobile_navigation\"\n    app:startDestination=\"@+id/navigation_home\">\n\n    <fragment\n        android:id=\"@+id/navigation_home\"\n        android:name=\"com.example.kaizenspeaking.ui.home.HomeFragment\"\n        android:label=\"@string/title_home\"\n        tools:layout=\"@layout/fragment_home\" />\n\n    <fragment\n        android:id=\"@+id/navigation_home_signed\"\n        android:name=\"com.example.kaizenspeaking.ui.home_signed.HomeSignedFragment\"\n        android:label=\"HomeSigned\"\n        tools:layout=\"@layout/fragment_home_signed\" />\n\n    <fragment\n        android:id=\"@+id/navigation_analyze\"\n        android:name=\"com.example.kaizenspeaking.ui.analyze.AnalyzeFragment\"\n        android:label=\"@string/title_analyze\"\n        tools:layout=\"@layout/fragment_analyze\" >\n        <action\n            android:id=\"@+id/action_navigation_analyze_to_analyzeResultFragment\"\n            app:destination=\"@id/analyzeResultFragment\" />\n    </fragment>\n\n    <fragment\n        android:id=\"@+id/navigation_history\"\n        android:name=\"com.example.kaizenspeaking.ui.history.HistoryFragment\"\n        android:label=\"@string/title_history\"\n        tools:layout=\"@layout/fragment_history\">\n        <action\n            android:id=\"@+id/action_navigation_history_to_trainingDetailFragment\"\n            app:destination=\"@id/trainingDetailFragment\" />\n    </fragment>\n\n    <fragment\n        android:id=\"@+id/analyzeResultFragment\"\n        android:name=\"com.example.kaizenspeaking.ui.analyze.AnalyzeResultFragment\"\n        android:label=\"fragment_analyze_result\"\n        tools:layout=\"@layout/fragment_analyze_result\" />\n\n    <fragment\n        android:id=\"@+id/trainingDetailFragment\"\n        android:name=\"com.example.kaizenspeaking.ui.history.detail.TrainingDetailFragment\"\n        android:label=\"Training Detail\"\n        tools:layout=\"@layout/fragment_training_detail\">\n        <!-- Add arguments that will be passed to the fragment -->\n        <argument\n            android:name=\"sessionId\"\n            app:argType=\"string\" />\n        <argument\n            android:name=\"sessionTitle\"\n            app:argType=\"string\" />\n    </fragment>\n\n</navigation>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/res/navigation/mobile_navigation.xml b/app/src/main/res/navigation/mobile_navigation.xml
+--- a/app/src/main/res/navigation/mobile_navigation.xml	(revision 5367bbb87291f78d3d5301a092a07950930367a2)
++++ b/app/src/main/res/navigation/mobile_navigation.xml	(date 1732204134670)
+@@ -9,13 +9,46 @@
+         android:id="@+id/navigation_home"
+         android:name="com.example.kaizenspeaking.ui.home.HomeFragment"
+         android:label="@string/title_home"
+-        tools:layout="@layout/fragment_home" />
++        tools:layout="@layout/fragment_home">
++
++        <action
++            android:id="@+id/action_navigation_home_to_signInFragment"
++            app:destination="@id/signInFragment" />
++    </fragment>
+ 
+     <fragment
+         android:id="@+id/navigation_home_signed"
+         android:name="com.example.kaizenspeaking.ui.home_signed.HomeSignedFragment"
+         android:label="HomeSigned"
+-        tools:layout="@layout/fragment_home_signed" />
++        tools:layout="@layout/fragment_home_signed">
++
++        <action
++            android:id="@+id/action_navigation_home_to_signInFragment"
++            app:destination="@id/signInFragment" />
++
++    </fragment>
++
++    <fragment
++        android:id="@+id/signInFragment"
++        android:name="com.example.kaizenspeaking.ui.auth.SignInFragment"
++        tools:layout="@layout/fragment_sign_in">
++
++        <action
++            android:id="@+id/nav_to_signUpFragment"
++            app:destination="@+id/signUpFragment"/>
++    </fragment>
++
++    <fragment
++        android:id="@+id/signUpFragment"
++        android:name="com.example.kaizenspeaking.ui.auth.SignUpFragment"
++        tools:layout="@layout/fragment_sign_up">
++
++        <action
++            android:id="@+id/nav_to_signInFragment"
++            app:destination="@+id/signInFragment"/>
++    </fragment>
++
++
+ 
+     <fragment
+         android:id="@+id/navigation_analyze"
+Index: app/src/main/res/layout/fragment_analyze.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"utf-8\"?>\n<ScrollView xmlns:android=\"http://schemas.android.com/apk/res/android\"\n    xmlns:app=\"http://schemas.android.com/apk/res-auto\"\n    xmlns:tools=\"http://schemas.android.com/tools\"\n    android:id=\"@+id/analyzeFragment\"\n    android:layout_width=\"match_parent\"\n    android:layout_height=\"match_parent\"\n    android:paddingTop=\"0dp\"\n    android:layout_marginTop=\"0dp\"\n    tools:context=\".ui.analyze.AnalyzeFragment\">\n\n    <androidx.constraintlayout.widget.ConstraintLayout\n        android:layout_width=\"match_parent\"\n        android:layout_height=\"wrap_content\"\n        android:paddingVertical=\"10dp\">\n\n\n        <TextView\n            android:id=\"@+id/tvInstructionTitle\"\n            android:layout_width=\"wrap_content\"\n            android:layout_height=\"wrap_content\"\n            android:layout_marginStart=\"16dp\"\n            android:layout_marginTop=\"16dp\"\n            android:layout_marginEnd=\"16dp\"\n            android:text=\"@string/instruction_title\"\n            android:textColor=\"@color/black\"\n            android:textStyle=\"bold\"\n            app:layout_constraintEnd_toEndOf=\"parent\"\n            app:layout_constraintHorizontal_bias=\"0.0\"\n            app:layout_constraintStart_toStartOf=\"parent\"\n            app:layout_constraintTop_toTopOf=\"parent\" />\n\n        <TextView\n            android:id=\"@+id/tvInstruction1\"\n            android:layout_width=\"0dp\"\n            android:layout_height=\"wrap_content\"\n            android:layout_marginStart=\"16dp\"\n            android:layout_marginTop=\"8dp\"\n            android:layout_marginEnd=\"16dp\"\n            android:textColor=\"@color/black\"\n            android:text=\"@string/instruction_desc1\"\n            app:layout_constraintEnd_toEndOf=\"parent\"\n            app:layout_constraintHorizontal_bias=\"0.0\"\n            app:layout_constraintStart_toStartOf=\"parent\"\n            app:layout_constraintTop_toBottomOf=\"@+id/tvInstructionTitle\" />\n\n        <TextView\n            android:id=\"@+id/tvInstruction2\"\n            android:layout_width=\"0dp\"\n            android:layout_height=\"wrap_content\"\n            android:layout_marginStart=\"16dp\"\n            android:layout_marginTop=\"5dp\"\n            android:layout_marginEnd=\"16dp\"\n            android:textColor=\"@color/black\"\n            android:text=\"@string/instruction_desc2\"\n            app:layout_constraintEnd_toEndOf=\"parent\"\n            app:layout_constraintHorizontal_bias=\"0.0\"\n            app:layout_constraintStart_toStartOf=\"parent\"\n            app:layout_constraintTop_toBottomOf=\"@+id/tvInstruction1\" />\n\n        <TextView\n            android:id=\"@+id/tvInstruction3\"\n            android:layout_width=\"0dp\"\n            android:layout_height=\"wrap_content\"\n            android:layout_marginStart=\"16dp\"\n            android:layout_marginTop=\"5dp\"\n            android:layout_marginEnd=\"16dp\"\n            android:textColor=\"@color/black\"\n            android:text=\"@string/instruction_desc3\"\n            app:layout_constraintEnd_toEndOf=\"parent\"\n            app:layout_constraintHorizontal_bias=\"0.0\"\n            app:layout_constraintStart_toStartOf=\"parent\"\n            app:layout_constraintTop_toBottomOf=\"@+id/tvInstruction2\" />\n\n        <TextView\n            android:id=\"@+id/textView4\"\n            android:layout_width=\"wrap_content\"\n            android:layout_height=\"wrap_content\"\n            android:layout_marginStart=\"16dp\"\n            android:layout_marginTop=\"24dp\"\n            android:text=\"@string/topics_title\"\n            android:textColor=\"@color/black\"\n            android:textSize=\"20sp\"\n            android:textStyle=\"bold\"\n            app:layout_constraintStart_toStartOf=\"parent\"\n            app:layout_constraintTop_toBottomOf=\"@+id/tvInstruction3\" />\n\n        <EditText\n            android:id=\"@+id/name\"\n            android:layout_width=\"0dp\"\n            android:layout_height=\"wrap_content\"\n            android:layout_marginStart=\"16dp\"\n            android:layout_marginTop=\"16dp\"\n            android:layout_marginEnd=\"16dp\"\n            android:background=\"@drawable/custom_input_gray\"\n            android:drawablePadding=\"12dp\"\n            android:ems=\"10\"\n            android:hint=\"@string/input_topic\"\n            android:inputType=\"text\"\n            android:padding=\"20dp\"\n            android:shadowColor=\"#0000ff\"\n            android:text=\"\"\n            android:textColor=\"@color/black\"\n            android:textColorHint=\"#8B8B8B\"\n            app:layout_constraintEnd_toEndOf=\"parent\"\n            app:layout_constraintHorizontal_bias=\"0.0\"\n            app:layout_constraintStart_toStartOf=\"parent\"\n            app:layout_constraintTop_toBottomOf=\"@+id/textView4\" />\n\n        <TextView\n            android:id=\"@+id/btnViewIntructions\"\n            android:layout_width=\"wrap_content\"\n            android:layout_height=\"wrap_content\"\n            android:layout_marginEnd=\"16dp\"\n            android:text=\"@string/instruction_detail\"\n            android:textColor=\"@color/blue\"\n            app:layout_constraintBottom_toBottomOf=\"@+id/textView4\"\n            app:layout_constraintEnd_toEndOf=\"parent\"\n            app:layout_constraintTop_toTopOf=\"@+id/textView4\" />\n\n        <ImageView\n            android:id=\"@+id/imgMic\"\n            android:layout_width=\"wrap_content\"\n            android:layout_height=\"wrap_content\"\n            android:layout_marginTop=\"16dp\"\n            android:src=\"@drawable/mic_off\"\n            app:layout_constraintEnd_toEndOf=\"parent\"\n            app:layout_constraintStart_toStartOf=\"parent\"\n            app:layout_constraintTop_toBottomOf=\"@+id/name\" />\n\n        <TextView\n            android:id=\"@+id/tvTimer\"\n            android:layout_width=\"wrap_content\"\n            android:layout_height=\"wrap_content\"\n            android:layout_marginTop=\"8dp\"\n            android:text=\"00.00\"\n            android:textSize=\"15sp\"\n            app:layout_constraintEnd_toEndOf=\"@+id/imgMic\"\n            app:layout_constraintStart_toStartOf=\"@+id/imgMic\"\n            app:layout_constraintTop_toBottomOf=\"@+id/imgMic\" />\n\n        <Button\n            android:id=\"@+id/btnMultiFunction\"\n            android:layout_width=\"150dp\"\n            android:layout_height=\"wrap_content\"\n            android:layout_marginTop=\"8dp\"\n            android:background=\"@drawable/btn_gray\"\n            android:text=\"@string/start_record\"\n            android:textStyle=\"bold\"\n            android:textColor=\"@color/black\"\n            app:layout_constraintEnd_toEndOf=\"@+id/tvTimer\"\n            app:layout_constraintStart_toStartOf=\"@+id/tvTimer\"\n            app:layout_constraintTop_toBottomOf=\"@+id/tvTimer\" />\n\n    </androidx.constraintlayout.widget.ConstraintLayout>\n\n\n\n\n</ScrollView>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/res/layout/fragment_analyze.xml b/app/src/main/res/layout/fragment_analyze.xml
+--- a/app/src/main/res/layout/fragment_analyze.xml	(revision 5367bbb87291f78d3d5301a092a07950930367a2)
++++ b/app/src/main/res/layout/fragment_analyze.xml	(date 1732126154853)
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="utf-8"?>
+-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
++<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+     xmlns:app="http://schemas.android.com/apk/res-auto"
+     xmlns:tools="http://schemas.android.com/tools"
+     android:id="@+id/analyzeFragment"
+@@ -9,28 +9,35 @@
+     android:layout_marginTop="0dp"
+     tools:context=".ui.analyze.AnalyzeFragment">
+ 
+-    <androidx.constraintlayout.widget.ConstraintLayout
++    <Toolbar
++        android:id="@+id/toolbar"
+         android:layout_width="match_parent"
+         android:layout_height="wrap_content"
+-        android:paddingVertical="10dp">
++        android:navigationIcon="@drawable/btn_back"
++        android:gravity="center"
++        android:title="@string/event_analyze_result"
++        android:background="@color/cardview_light_background"
++        android:titleTextColor="@color/black"
++        app:layout_constraintTop_toTopOf="parent" />
+ 
+ 
+-        <TextView
+-            android:id="@+id/tvInstructionTitle"
+-            android:layout_width="wrap_content"
+-            android:layout_height="wrap_content"
+-            android:layout_marginStart="16dp"
+-            android:layout_marginTop="16dp"
+-            android:layout_marginEnd="16dp"
+-            android:text="@string/instruction_title"
+-            android:textColor="@color/black"
+-            android:textStyle="bold"
+-            app:layout_constraintEnd_toEndOf="parent"
+-            app:layout_constraintHorizontal_bias="0.0"
+-            app:layout_constraintStart_toStartOf="parent"
+-            app:layout_constraintTop_toTopOf="parent" />
++    <TextView
++        android:id="@+id/tvInstructionTitle"
++        android:layout_width="wrap_content"
++        android:layout_height="wrap_content"
++        android:layout_marginStart="16dp"
++        android:layout_marginTop="16dp"
++        android:layout_marginEnd="16dp"
++        android:text="@string/instruction_title"
++        android:textColor="@color/black"
++        android:textSize="14sp"
++        android:textStyle="bold"
++        app:layout_constraintEnd_toEndOf="parent"
++        app:layout_constraintHorizontal_bias="0.0"
++        app:layout_constraintStart_toStartOf="@id/toolbar"
++        app:layout_constraintTop_toBottomOf="@+id/toolbar" />
+ 
+-        <TextView
++    <TextView
+             android:id="@+id/tvInstruction1"
+             android:layout_width="0dp"
+             android:layout_height="wrap_content"
+@@ -38,6 +45,7 @@
+             android:layout_marginTop="8dp"
+             android:layout_marginEnd="16dp"
+             android:textColor="@color/black"
++            android:textSize="12sp"
+             android:text="@string/instruction_desc1"
+             app:layout_constraintEnd_toEndOf="parent"
+             app:layout_constraintHorizontal_bias="0.0"
+@@ -52,6 +60,7 @@
+             android:layout_marginTop="5dp"
+             android:layout_marginEnd="16dp"
+             android:textColor="@color/black"
++            android:textSize="12sp"
+             android:text="@string/instruction_desc2"
+             app:layout_constraintEnd_toEndOf="parent"
+             app:layout_constraintHorizontal_bias="0.0"
+@@ -66,6 +75,7 @@
+             android:layout_marginTop="5dp"
+             android:layout_marginEnd="16dp"
+             android:textColor="@color/black"
++            android:textSize="12sp"
+             android:text="@string/instruction_desc3"
+             app:layout_constraintEnd_toEndOf="parent"
+             app:layout_constraintHorizontal_bias="0.0"
+@@ -102,6 +112,7 @@
+             android:text=""
+             android:textColor="@color/black"
+             android:textColorHint="#8B8B8B"
++            android:textSize="12sp"
+             app:layout_constraintEnd_toEndOf="parent"
+             app:layout_constraintHorizontal_bias="0.0"
+             app:layout_constraintStart_toStartOf="parent"
+@@ -114,10 +125,13 @@
+             android:layout_marginEnd="16dp"
+             android:text="@string/instruction_detail"
+             android:textColor="@color/blue"
++            android:textSize="11sp"
+             app:layout_constraintBottom_toBottomOf="@+id/textView4"
+             app:layout_constraintEnd_toEndOf="parent"
+             app:layout_constraintTop_toTopOf="@+id/textView4" />
+ 
++
++
+         <ImageView
+             android:id="@+id/imgMic"
+             android:layout_width="wrap_content"
+@@ -147,14 +161,13 @@
+             android:background="@drawable/btn_gray"
+             android:text="@string/start_record"
+             android:textStyle="bold"
++            android:textSize="12sp"
+             android:textColor="@color/black"
+             app:layout_constraintEnd_toEndOf="@+id/tvTimer"
+             app:layout_constraintStart_toStartOf="@+id/tvTimer"
+-            app:layout_constraintTop_toBottomOf="@+id/tvTimer" />
++            app:layout_constraintTop_toBottomOf="@+id/tvTimer"
++            android:layout_marginBottom="15dp" />
+ 
+     </androidx.constraintlayout.widget.ConstraintLayout>
+ 
+ 
+-
+-
+-</ScrollView>
+\ No newline at end of file
+Index: app/src/main/res/values/strings.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><resources>\n    <string name=\"app_name\">KaizenSpeaking</string>\n    <string name=\"title_home\">Home</string>\n    <string name=\"title_analyze\">Analyze</string>\n    <string name=\"title_history\">History</string>\n\n    <string name=\"hello_blank_fragment\">Hello blank fragment</string>\n\n    <!--Auth page-->\n    <string name=\"input_name\">Nama</string>\n    <string name=\"input_email\">Email</string>\n    <string name=\"input_password\">Kata Sandi</string>\n    <string name=\"input_confirm_password\">Ulang Kata Sandi</string>\n    <string name=\"daftar\">DAFTAR</string>\n    <string name=\"masuk\">MASUK</string>\n    <string name=\"atau\">Atau</string>\n    <string name=\"login_google\">Masuk Dengan Google</string>\n\n    <!--Analyze page-->\n    <string name=\"instruction_title\">Pastikan hal-hal berikut sebelum merekam : </string>\n    <string name=\"instruction_desc1\">1. Jika berlatih untuk pidato/presentasi, spesifikkan materi atau cakupan yang akan disampaikan. </string>\n    <string name=\"instruction_desc2\">2. Jika berlatih untuk wawancara, tentukan posisi yang dilamar, nama perusahaan, dan suasana (formal/informal). </string>\n    <string name=\"instruction_desc3\">3. Semakin spesifik topik yang dimasukkan, semakin baik hasil analisis yang akan didapatkan. </string>\n    <string name=\"topics_title\">Topik</string>\n    <string name=\"input_topic\">Masukkan topik yang ingin dibahas</string>\n    <string name=\"instruction_detail\">Lihat instruksi</string>\n    <string name=\"start_record\">Mulai merekam</string>\n    <string name=\"stop\">Selesai</string>\n    <string name=\"analyze\">Analisis</string>\n\n    <!--Instruction Slide-->\n    <string name=\"text_instruction_1\">Berada di ruangan senyap untuk mengurangi gangguan suara. </string>\n    <string name=\"desc_instruction_1\">Untuk analisis suara yang akurat, berada di ruangan senyap agar aplikasi mendeteksi dan menganalisis ucapan lebih jelas.</string>\n    <string name=\"text_instruction_2\">Pastikan mikrofon berfungsi dan berada dekat mulut.</string>\n    <string name=\"desc_instruction_2\">Pastikan mikrofon berfungsi baik dan ditempatkan dekat mulut untuk menangkap suara dengan jelas dan mengurangi distorsi.</string>\n    <string name=\"text_instruction_3\">Siapkan skrip atau poin utama agar pembicaraan terarah.</string>\n    <string name=\"desc_instruction_3\">Siapkan skrip atau poin-poin utama sebelum percakapan agar terarah, jelas, dan mudah dianalisis untuk hasil lebih efektif.</string>\n    <string name=\"text_instruction_4\">Pastikan anda memiliki waktu yang cukup untuk merekam tanpa gangguan.</string>\n    <string name=\"desc_instruction_4\">Siapkan waktu cukup untuk merekam tanpa interupsi agar hasil analisis suara akurat dan <optimal class=\"\"></optimal></string>\n    <string name=\"text_instruction_5\">Posisikan diri dengan rileks dan nyaman</string>\n    <string name=\"desc_instruction_5\">Siapkan skrip atau poin-poin utama sebelum percakapan agar terarah, jelas, dan mudah dianalisis untuk hasil lebih efektif.></string>\n    <string name=\"account_name\"><![CDATA[Sign In >]]></string>\n    <string name=\"article_title\">Artikel</string>\n    <string name=\"article_description\">Ayo baca artikel untuk menambah\\nwawasan kamu</string>\n    <string name=\"account\">Account</string>\n    <string name=\"searchArticle\">Cari Artikel...</string>\n    <string name=\"hallo\">Hallo!</string>\n    <string name=\"article_summary\">Lorem Ipsum Dolor Sir Amet</string>\n    <string name=\"article_title_data\">Judul Artikel Judul Artikel Judul Artikel Judul Artikel Judul Artikel Judul Artikel Judul Artikel</string>\n    <string name=\"article_description_data\">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</string>\n    <string name=\"play\">Play</string>\n    <string name=\"riwayat_latihan\">Riwayat Latihan</string>\n    <string name=\"progres_latihan\">Progres Latihan</string>\n\n    <!--    data dummy article-->\n    <string-array name=\"tempdata_article_title\">\n        <item>Cara Mudah Meningkatkan Kepercayaan Diri saat Berada di Depan Umum</item>\n        <item>Metode Public Speaking: Pengertian, Tujuan, Metode, dan Tips</item>\n        <item>Retorik Adalah: Seni Berbicara yang Efektif dan Meyakinkan</item>\n        <item>Public Speaking: Arti, Metode, Manfaat, Tujuan, dan Cara Meningkatkan Skill-nya</item>\n        <item>Pakai Cara Ini Supaya Kamu Pede Ngomong di Depan Umum!</item>\n    </string-array>\n    <integer-array name=\"tempdata_article_image\">\n        <item>@drawable/tempdata_article_image1</item>\n        <item>@drawable/tempdata_article_image2</item>\n        <item>@drawable/tempdata_article_image3</item>\n        <item>@drawable/tempdata_article_image4</item>\n        <item>@drawable/tempdata_article_image5</item>\n    </integer-array>\n    <string-array name=\"tempdata_article_description\">\n        <item>Halo, sahabat pembelajar! Berbicara di depan umum sering kali dianggap sebagai momok yang menakutkan. Faktanya, sebuah survei oleh National Institute of Mental Health menunjukkan bahwa sekitar 73% orang merasa cemas ketika harus tampil di depan orang banyak. </item>\n        <item>Metode Public Speaking – Grameds, pernahkah kamu berbicara di depan umum? Jika pernah, maka itu berarti kamu sedang melakukan public speaking. Wah, keren ya pastinya, bisa berkomunikasi di depan banyak orang.</item>\n        <item>Retorika adalah seni berbicara secara efektif dan meyakinkan untuk mempengaruhi pendengar. Istilah ini berasal dari bahasa Yunani \"rhetorike\" yang berarti keterampilan berpidato. Dalam pengertian yang lebih luas, retorika mencakup kemampuan menggunakan bahasa lisan maupun tulisan untuk berkomunikasi secara persuasif.</item>\n        <item>Sebelum membahas metode dan cara meningkatkannya, pertama-tama kita perlu mengulas definisi dari soft skill tersebut. Melansir laman ThoughtCo, public speaking adalah sebuah seni berpidato, di mana pembicara berkomunikasi dengan audiensnya melalui presentasi lisan.</item>\n        <item>Pernahkah kamu mempresentasikan sesuatu di depan kelas? Atau pernahkah kamu berpidato untuk sebuah acara? Nah, itu adalah berbicara di depan umum. Berbicara di depan umum merupakan teknik berbicara yang dibutuhkan oleh pembicara agar bisa menarik semua perhatian audiens.</item>\n    </string-array>\n    <string-array name=\"tempdata_article_url\">\n        <item>https://www.kompasiana.com/salwaanur8965/671702aac925c424c2134192/cara-mudah-meningkatkan-kepercayaan-diri-saat-berada-di-depan-umum</item>\n        <item>https://www.gramedia.com/literasi/metode-public-speaking/</item>\n        <item>https://www.liputan6.com/feeds/read/5779700/retorik-adalah-seni-berbicara-yang-efektif-dan-meyakinkan</item>\n        <item>https://glints.com/id/lowongan/kemampuan-public-speaking/</item>\n        <item>https://www.generali.co.id/id/healthyliving/healthy-lifestyle/pakai-cara-ini-supaya-kamu-pede-ngomong-di-depan-umum</item>\n    </string-array>\n    <!--    data dummy article-->\n    \n<!--    Home After Signed-->\n    <string name=\"greetings_with_name\">Halo, Budi Budiono! ></string>\n    <string name=\"progress_title\">Progress Kamu</string>\n    <string name=\"number_of_exercise\">Banyak latihan: </string>\n\n<!--History Page -->\n    <string name=\"hasil_analisis\">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus lacinia odio vitae vestibulum vestibulum. Cras venenatis euismod malesuada. Integer lacinia, nunc at aliquet sagittis, nunc dui varius libero, at pulvinar odio velit sit amet lectus. Nullam euismod, felis sit amet interdum scelerisque, lacus nisi egestas risus, sit amet vestibulum nisi sapien eu libero. Aliquam erat volutpat. Integer ut dolor quis risus vehicula vehicula ut sit amet eros. Nam suscipit eros a sapien viverra, a facilisis ipsum ultrices.Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Quisque at semper sem. Fusce mollis, nunc eu suscipit ultricies, velit nulla venenatis metus, in tincidunt tortor sapien id augue. Nunc fringilla dui non libero suscipit, non vehicula metus pretium. Cras ac volutpat elit. Vestibulum efficitur felis vel velit convallis, non pharetra sem aliquet. Suspendisse potenti. Vivamus sed laoreet nunc.Curabitr dapibus vulputate arcu, nec rhoncus nulla vestibulum nec. Etiam congue dui non odio fermentum, a consectetur tortor aliquam. Fusce at venenatis arcu. Aenean ultricies efficitur lacus, non tristique urna. Nam gravida bibendum arcu, eget luctus odio volutpat ut. Proin porttitor nulla in arcu fermentum, a cursus dolor consequat. Nunc suscipit tellus vel neque auctor imperdiet. Integer at dolor non elit luctus molestie. Mauris ut turpis bibendum, dapibus neque id, porttitor magna. Nullam aliquet tristique justo, in sagittis lorem viverra vel. Vivamus fermentum, quam a porttitor efficitur, sapien leo lacinia nunc, at luctus nunc sem eget felis. Fusce et nisl at odio dictum venenatis et et justo.Donec ut bibendum urna. Suspendisse non urna sed felis aliquam pretium. Nulla facilisi. Curabitur mollis purus eu facilisis cursus. Aliquam erat volutpat. Nullam condimentum, arcu eget luctus fermentum, risus ante bibendum massa, vel volutpat velit sapien non dolor. Aliquam sed bibendum ipsum. Quisque scelerisque vehicula velit, ut rhoncus dui eleifend non. Nam ornare, ex sed consectetur aliquet, enim urna vehicula libero, sed varius nisl lorem in ex. Integer ut turpis ut odio efficitur ultricies. Maecenas sagittis varius est, sed bibendum urna cursus in. Etiam id ultrices turpis. Sed et tortor sit amet nulla gravida ultricies.Aenean nec vestibulum mauris. Sed sit amet velit euismod, vehicula tortor a, feugiat erat. Cras lobortis mauris magna, vel gravida odio sollicitudin eu. Integer et augue eget nulla vehicula sollicitudin et ac nulla. Etiam ornare lacus vitae urna bibendum, nec eleifend metus convallis. Morbi nec ante at libero facilisis venenatis. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Sed nec tempor urna, id porttitor arcu. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Ut ultricies tincidunt arcu nec venenatis. Suspendisse volutpat quam id risus bibendum, sit amet luctus erat consequat. Donec ac velit ac ligula facilisis vestibulum.Morbi dapibus odio vitae metus tempor, id blandit ex ornare. Nunc maximus, justo sit amet viverra laoreet, magna nisl fermentum mauris, eget efficitur orci urna at est. Integer eu enim et lectus volutpat tempus eget eget augue. Sed ac neque a ipsum scelerisque dignissim non a augue. Sed nec enim quis nunc posuere sodales. Nam egestas nibh non mi volutpat interdum. Aliquam erat volutpat.Duis sollicitudin est nisl, ut ultricies nisl fermentum vel. Cras ornare hendrerit lectus, vitae dignissim magna. Donec dapibus dui ac ligula cursus, ut tincidunt orci aliquet. Vivamus a leo posuere, accumsan lacus vel, euismod ex. Pellentesque et urna sit amet velit facilisis bibendum. Proin nec ligula nec libero pharetra rhoncus. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Nulla facilisi. Suspendisse potenti. Fusce nec varius libero. Nulla facilisi. Nullam ultrices eros a orci fermentum, id scelerisque ante auctor. Vivamus convallis augue a odio finibus, nec pulvinar ante vulputate.Ut ut vulputate mi. Integer finibus scelerisque sagittis. In varius libero vitae ultrices tempus. Vivamus at dolor nec turpis tincidunt euismod. Fusce bibendum neque nec efficitur convallis. Pellentesque id tincidunt nisi. Duis fermentum augue id risus varius, et bibendum dui aliquet. Aenean condimentum placerat risus, ut ultricies magna gravida eget. Ut in sem felis.Nullam fermentum nulla nec lectus lacinia, non posuere magna pharetra. Curabitur sit amet dui id nulla hendrerit gravida at vitae sapien. Etiam dictum vitae ex a egestas. Donec ut dui scelerisque, congue sem vel, hendrerit ligula. Mauris fermentum nulla id dolor hendrerit, quis porta erat auctor. Fusce eu nisl elit. Nulla facilisi. In sed venenatis augue. Fusce non magna a ante facilisis fringilla. Aliquam erat volutpat. Aliquam erat volutpat. Nulla facilisi. Proin vestibulum, lectus nec cursus rhoncus, eros dui sollicitudin urna, at dignissim nunc lectus et magna. Praesent dapibus vulputate nisi, eget faucibus velit sollicitudin ut.Nam mollis augue et purus efficitur, vel blandit erat vehicula. Fusce dapibus ullamcorper malesuada. Nulla auctor, leo sed maximus fermentum, justo ligula fermentum lacus, non fringilla mauris nunc sit amet nunc. Integer ac sapien lectus. Aliquam erat volutpat. Suspendisse tempus interdum ipsum, eu ullamcorper risus. Phasellus euismod mi a ex viverra, ac fermentum eros tincidunt. Suspendisse potenti. Suspendisse auctor velit vel libero feugiat bibendum. Vivamus in libero sed elit egestas rutrum.\n</string>\n    <string name=\"tvPageAnalisis\">Hasil Analisis</string>\n    <string name=\"event_analyze_result\">Hasil Analisis</string>\n    <string name=\"nilai_keseluruhan\">Nilai Keseluruhan</string>\n</resources>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/res/values/strings.xml b/app/src/main/res/values/strings.xml
+--- a/app/src/main/res/values/strings.xml	(revision 5367bbb87291f78d3d5301a092a07950930367a2)
++++ b/app/src/main/res/values/strings.xml	(date 1732195978814)
+@@ -82,16 +82,18 @@
+         <item>https://www.generali.co.id/id/healthyliving/healthy-lifestyle/pakai-cara-ini-supaya-kamu-pede-ngomong-di-depan-umum</item>
+     </string-array>
+     <!--    data dummy article-->
+-    
+-<!--    Home After Signed-->
++
++    <!--    Home After Signed-->
+     <string name="greetings_with_name">Halo, Budi Budiono! ></string>
+     <string name="progress_title">Progress Kamu</string>
+     <string name="number_of_exercise">Banyak latihan: </string>
+ 
+-<!--History Page -->
++    <!--History Page -->
+     <string name="hasil_analisis">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus lacinia odio vitae vestibulum vestibulum. Cras venenatis euismod malesuada. Integer lacinia, nunc at aliquet sagittis, nunc dui varius libero, at pulvinar odio velit sit amet lectus. Nullam euismod, felis sit amet interdum scelerisque, lacus nisi egestas risus, sit amet vestibulum nisi sapien eu libero. Aliquam erat volutpat. Integer ut dolor quis risus vehicula vehicula ut sit amet eros. Nam suscipit eros a sapien viverra, a facilisis ipsum ultrices.Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Quisque at semper sem. Fusce mollis, nunc eu suscipit ultricies, velit nulla venenatis metus, in tincidunt tortor sapien id augue. Nunc fringilla dui non libero suscipit, non vehicula metus pretium. Cras ac volutpat elit. Vestibulum efficitur felis vel velit convallis, non pharetra sem aliquet. Suspendisse potenti. Vivamus sed laoreet nunc.Curabitr dapibus vulputate arcu, nec rhoncus nulla vestibulum nec. Etiam congue dui non odio fermentum, a consectetur tortor aliquam. Fusce at venenatis arcu. Aenean ultricies efficitur lacus, non tristique urna. Nam gravida bibendum arcu, eget luctus odio volutpat ut. Proin porttitor nulla in arcu fermentum, a cursus dolor consequat. Nunc suscipit tellus vel neque auctor imperdiet. Integer at dolor non elit luctus molestie. Mauris ut turpis bibendum, dapibus neque id, porttitor magna. Nullam aliquet tristique justo, in sagittis lorem viverra vel. Vivamus fermentum, quam a porttitor efficitur, sapien leo lacinia nunc, at luctus nunc sem eget felis. Fusce et nisl at odio dictum venenatis et et justo.Donec ut bibendum urna. Suspendisse non urna sed felis aliquam pretium. Nulla facilisi. Curabitur mollis purus eu facilisis cursus. Aliquam erat volutpat. Nullam condimentum, arcu eget luctus fermentum, risus ante bibendum massa, vel volutpat velit sapien non dolor. Aliquam sed bibendum ipsum. Quisque scelerisque vehicula velit, ut rhoncus dui eleifend non. Nam ornare, ex sed consectetur aliquet, enim urna vehicula libero, sed varius nisl lorem in ex. Integer ut turpis ut odio efficitur ultricies. Maecenas sagittis varius est, sed bibendum urna cursus in. Etiam id ultrices turpis. Sed et tortor sit amet nulla gravida ultricies.Aenean nec vestibulum mauris. Sed sit amet velit euismod, vehicula tortor a, feugiat erat. Cras lobortis mauris magna, vel gravida odio sollicitudin eu. Integer et augue eget nulla vehicula sollicitudin et ac nulla. Etiam ornare lacus vitae urna bibendum, nec eleifend metus convallis. Morbi nec ante at libero facilisis venenatis. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Sed nec tempor urna, id porttitor arcu. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Ut ultricies tincidunt arcu nec venenatis. Suspendisse volutpat quam id risus bibendum, sit amet luctus erat consequat. Donec ac velit ac ligula facilisis vestibulum.Morbi dapibus odio vitae metus tempor, id blandit ex ornare. Nunc maximus, justo sit amet viverra laoreet, magna nisl fermentum mauris, eget efficitur orci urna at est. Integer eu enim et lectus volutpat tempus eget eget augue. Sed ac neque a ipsum scelerisque dignissim non a augue. Sed nec enim quis nunc posuere sodales. Nam egestas nibh non mi volutpat interdum. Aliquam erat volutpat.Duis sollicitudin est nisl, ut ultricies nisl fermentum vel. Cras ornare hendrerit lectus, vitae dignissim magna. Donec dapibus dui ac ligula cursus, ut tincidunt orci aliquet. Vivamus a leo posuere, accumsan lacus vel, euismod ex. Pellentesque et urna sit amet velit facilisis bibendum. Proin nec ligula nec libero pharetra rhoncus. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Nulla facilisi. Suspendisse potenti. Fusce nec varius libero. Nulla facilisi. Nullam ultrices eros a orci fermentum, id scelerisque ante auctor. Vivamus convallis augue a odio finibus, nec pulvinar ante vulputate.Ut ut vulputate mi. Integer finibus scelerisque sagittis. In varius libero vitae ultrices tempus. Vivamus at dolor nec turpis tincidunt euismod. Fusce bibendum neque nec efficitur convallis. Pellentesque id tincidunt nisi. Duis fermentum augue id risus varius, et bibendum dui aliquet. Aenean condimentum placerat risus, ut ultricies magna gravida eget. Ut in sem felis.Nullam fermentum nulla nec lectus lacinia, non posuere magna pharetra. Curabitur sit amet dui id nulla hendrerit gravida at vitae sapien. Etiam dictum vitae ex a egestas. Donec ut dui scelerisque, congue sem vel, hendrerit ligula. Mauris fermentum nulla id dolor hendrerit, quis porta erat auctor. Fusce eu nisl elit. Nulla facilisi. In sed venenatis augue. Fusce non magna a ante facilisis fringilla. Aliquam erat volutpat. Aliquam erat volutpat. Nulla facilisi. Proin vestibulum, lectus nec cursus rhoncus, eros dui sollicitudin urna, at dignissim nunc lectus et magna. Praesent dapibus vulputate nisi, eget faucibus velit sollicitudin ut.Nam mollis augue et purus efficitur, vel blandit erat vehicula. Fusce dapibus ullamcorper malesuada. Nulla auctor, leo sed maximus fermentum, justo ligula fermentum lacus, non fringilla mauris nunc sit amet nunc. Integer ac sapien lectus. Aliquam erat volutpat. Suspendisse tempus interdum ipsum, eu ullamcorper risus. Phasellus euismod mi a ex viverra, ac fermentum eros tincidunt. Suspendisse potenti. Suspendisse auctor velit vel libero feugiat bibendum. Vivamus in libero sed elit egestas rutrum.
+ </string>
+     <string name="tvPageAnalisis">Hasil Analisis</string>
+     <string name="event_analyze_result">Hasil Analisis</string>
+     <string name="nilai_keseluruhan">Nilai Keseluruhan</string>
++    <string name="detail_latihan">Detail Latihan</string>
++    <string name="selanjutnya">Selanjutnya</string>
+ </resources>
+\ No newline at end of file

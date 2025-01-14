@@ -1,0 +1,812 @@
+Index: app/src/main/java/com/example/kaizenspeaking/ui/history/HistoryFragment.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.example.kaizenspeaking.ui.history\n\nimport android.os.Bundle\nimport android.view.LayoutInflater\nimport android.view.View\nimport android.view.ViewGroup\nimport android.widget.TextView\nimport androidx.fragment.app.Fragment\nimport androidx.fragment.app.viewModels\nimport androidx.navigation.fragment.findNavController\nimport androidx.recyclerview.widget.LinearLayoutManager\nimport com.example.kaizenspeaking.R\nimport com.example.kaizenspeaking.databinding.FragmentHistoryBinding\nimport com.github.mikephil.charting.charts.BarChart\nimport com.github.mikephil.charting.components.YAxis\nimport com.github.mikephil.charting.data.BarData\nimport com.github.mikephil.charting.data.BarDataSet\nimport com.github.mikephil.charting.data.BarEntry\n\n@Suppress(\"DEPRECATION\")\nclass HistoryFragment : Fragment() {\n\n    private var _binding: FragmentHistoryBinding? = null\n    private val binding get() = _binding!!\n\n    private val viewModel: HistoryViewModel by viewModels()\n    private val trainingAdapter = TrainingSessionAdapter()\n    private lateinit var barChart: BarChart\n\n\n    override fun onCreateView(\n        inflater: LayoutInflater,\n        container: ViewGroup?,\n        savedInstanceState: Bundle?\n    ): View {\n        _binding = FragmentHistoryBinding.inflate(inflater, container, false)\n        return binding.root\n    }\n\n    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {\n        super.onViewCreated(view, savedInstanceState)\n\n        setupRecyclerView()\n        setupObservers()\n        setupClickListeners()\n\n        barChart = binding.barchart\n        barChart.getAxisRight().setDrawLabels(false)\n\n        // Data for the chart\n        val entries = ArrayList<BarEntry>()\n        entries.add(BarEntry(0f, 25f)) // Data point 1\n        entries.add(BarEntry(1f, 50f)) // Data point 2\n        entries.add(BarEntry(2f, 100f)) // Data point 3\n        entries.add(BarEntry(3f, 75f)) // Data point 4\n\n\n        // Create BarDataSet\n        val barDataSet = BarDataSet(entries, \"Bar Chart Example\")\n\n        // Set different colors for each bar\n        val colors = arrayListOf(\n            resources.getColor(android.R.color.holo_blue_light),\n            resources.getColor(android.R.color.holo_green_light),\n            resources.getColor(android.R.color.holo_orange_light),\n            resources.getColor(android.R.color.holo_red_light)\n        )\n        barDataSet.colors = colors\n\n        // Create BarData\n        val barData = BarData(barDataSet)\n\n        // Set data to the chart\n        barChart.data = barData\n\n        // Refresh chart to render the new data\n        barChart.invalidate()\n\n    }\n\n    private fun setupRecyclerView() {\n        binding.recyclerView.apply {\n            layoutManager = LinearLayoutManager(requireContext())\n            adapter = trainingAdapter\n        }\n    }\n\n    private fun setupObservers() {\n        viewModel.trainingSessions.observe(viewLifecycleOwner) { sessions ->\n            trainingAdapter.submitList(sessions)\n        }\n\n        // Untuk sementara, kita bisa menampilkan total di TextView yang ada di layout\n        viewModel.totalTrainings.observe(viewLifecycleOwner) { total ->\n            // Cari TextView yang sesuai di layout Anda\n            binding.root.findViewById<TextView>(R.id.totalTrainingTextView)?.text =\n                \"Total Latihan: $total\"\n        }\n    }\n\n    private fun setupClickListeners() {\n        trainingAdapter.setOnItemClickListener { session ->\n            // Navigasi sederhana menggunakan ID fragment tujuan\n            val bundle = Bundle().apply {\n                putString(\"sessionId\", session.id)\n                putString(\"sessionTitle\", session.title)\n            }\n            findNavController().navigate(\n                R.id.trainingDetailFragment,  // Pastikan ID ini sesuai dengan yang ada di nav graph\n                bundle\n            )\n        }\n    }\n\n    override fun onDestroyView() {\n        super.onDestroyView()\n        _binding = null\n    }\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/com/example/kaizenspeaking/ui/history/HistoryFragment.kt b/app/src/main/java/com/example/kaizenspeaking/ui/history/HistoryFragment.kt
+--- a/app/src/main/java/com/example/kaizenspeaking/ui/history/HistoryFragment.kt	(revision 10a1ae89f3453c826e0bc62b7558e4c487b69634)
++++ b/app/src/main/java/com/example/kaizenspeaking/ui/history/HistoryFragment.kt	(date 1732017663500)
+@@ -12,10 +12,14 @@
+ import com.example.kaizenspeaking.R
+ import com.example.kaizenspeaking.databinding.FragmentHistoryBinding
+ import com.github.mikephil.charting.charts.BarChart
++import com.github.mikephil.charting.charts.LineChart
+ import com.github.mikephil.charting.components.YAxis
+ import com.github.mikephil.charting.data.BarData
+ import com.github.mikephil.charting.data.BarDataSet
+ import com.github.mikephil.charting.data.BarEntry
++import com.github.mikephil.charting.data.Entry
++import com.github.mikephil.charting.data.LineData
++import com.github.mikephil.charting.data.LineDataSet
+ 
+ @Suppress("DEPRECATION")
+ class HistoryFragment : Fragment() {
+@@ -25,7 +29,9 @@
+ 
+     private val viewModel: HistoryViewModel by viewModels()
+     private val trainingAdapter = TrainingSessionAdapter()
+-    private lateinit var barChart: BarChart
++
++    private lateinit var lineChart: LineChart
++
+ 
+ 
+     override fun onCreateView(
+@@ -44,37 +50,48 @@
+         setupObservers()
+         setupClickListeners()
+ 
+-        barChart = binding.barchart
+-        barChart.getAxisRight().setDrawLabels(false)
++        lineChart = binding.lineChart
+ 
+-        // Data for the chart
+-        val entries = ArrayList<BarEntry>()
+-        entries.add(BarEntry(0f, 25f)) // Data point 1
+-        entries.add(BarEntry(1f, 50f)) // Data point 2
+-        entries.add(BarEntry(2f, 100f)) // Data point 3
+-        entries.add(BarEntry(3f, 75f)) // Data point 4
++        // Data for each Exercise
++        val exerciseLabels = arrayOf("Latihan 1", "Latihan 2", "Latihan 3")
++        val dataA = arrayOf(65f, 70f, 80f, 85f, 92f, 94f)
++        val dataB = arrayOf(50f, 52f, 60f, 75f, 85f, 95f)
++        val dataC = arrayOf(70f, 72f, 75f, 79f, 82f, 85f)
++        val dataD = arrayOf(40f, 65f, 75f, 80f, 83f, 90f)
+ 
++        // Create entries for each line
++        val entriesA = ArrayList<Entry>()
++        val entriesB = ArrayList<Entry>()
++        val entriesC = ArrayList<Entry>()
++        val entriesD = ArrayList<Entry>()
+ 
+-        // Create BarDataSet
+-        val barDataSet = BarDataSet(entries, "Bar Chart Example")
++        // Populate entries for each data series
++        for (i in exerciseLabels.indices) {
++            entriesA.add(Entry(i.toFloat(), dataA[i]))
++            entriesB.add(Entry(i.toFloat(), dataB[i]))
++            entriesC.add(Entry(i.toFloat(), dataC[i]))
++            entriesD.add(Entry(i.toFloat(), dataD[i]))
++        }
+ 
+-        // Set different colors for each bar
+-        val colors = arrayListOf(
+-            resources.getColor(android.R.color.holo_blue_light),
+-            resources.getColor(android.R.color.holo_green_light),
+-            resources.getColor(android.R.color.holo_orange_light),
+-            resources.getColor(android.R.color.holo_red_light)
+-        )
+-        barDataSet.colors = colors
++        // Create datasets for each category (A, B, C, D)
++        val dataSetA = LineDataSet(entriesA, "Kejelasan")
++        val dataSetB = LineDataSet(entriesB, "Diksi")
++        val dataSetC = LineDataSet(entriesC, "Kelancaran")
++        val dataSetD = LineDataSet(entriesD, "Emosi")
+ 
+-        // Create BarData
+-        val barData = BarData(barDataSet)
++        // Set colors for each line
++        dataSetA.color = resources.getColor(android.R.color.holo_blue_light)
++        dataSetB.color = resources.getColor(android.R.color.holo_green_light)
++        dataSetC.color = resources.getColor(android.R.color.holo_red_light)
++        dataSetD.color = resources.getColor(android.R.color.holo_orange_light)
+ 
+-        // Set data to the chart
+-        barChart.data = barData
++        // Create LineData object and set it on the chart
++        val lineData = LineData(dataSetA, dataSetB, dataSetC, dataSetD)
++        lineChart.data = lineData
+ 
+-        // Refresh chart to render the new data
+-        barChart.invalidate()
++        // Refresh the chart
++        lineChart.invalidate()
++
+ 
+     }
+ 
+Index: app/src/main/res/values/strings.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><resources>\n    <string name=\"app_name\">KaizenSpeaking</string>\n    <string name=\"title_home\">Home</string>\n    <string name=\"title_analyze\">Analyze</string>\n    <string name=\"title_history\">History</string>\n\n    <string name=\"hello_blank_fragment\">Hello blank fragment</string>\n\n    <!--Auth page-->\n    <string name=\"input_name\">Nama</string>\n    <string name=\"input_email\">Email</string>\n    <string name=\"input_password\">Kata Sandi</string>\n    <string name=\"input_confirm_password\">Ulang Kata Sandi</string>\n    <string name=\"daftar\">DAFTAR</string>\n    <string name=\"masuk\">MASUK</string>\n    <string name=\"atau\">Atau</string>\n    <string name=\"login_google\">Masuk Dengan Google</string>\n\n    <!--Analyze page-->\n    <string name=\"instruction_title\">Pastikan hal-hal berikut sebelum merekam : </string>\n    <string name=\"instruction_desc1\">1. Jika berlatih untuk pidato/presentasi, spesifikkan materi atau cakupan yang akan disampaikan. </string>\n    <string name=\"instruction_desc2\">2. Jika berlatih untuk wawancara, tentukan posisi yang dilamar, nama perusahaan, dan suasana (formal/informal). </string>\n    <string name=\"instruction_desc3\">3. Semakin spesifik topik yang dimasukkan, semakin baik hasil analisis yang akan didapatkan. </string>\n    <string name=\"topics_title\">Topik</string>\n    <string name=\"input_topic\">Masukkan topik yang ingin dibahas</string>\n    <string name=\"instruction_detail\">Lihat instruksi</string>\n    <string name=\"start_record\">Mulai merekam</string>\n    <string name=\"stop\">Selesai</string>\n    <string name=\"analyze\">Analisis</string>\n\n    <!--Instruction Slide-->\n    <string name=\"text_instruction_1\">Berada di ruangan senyap untuk mengurangi gangguan suara. </string>\n    <string name=\"desc_instruction_1\">Untuk analisis suara yang akurat, berada di ruangan senyap agar aplikasi mendeteksi dan menganalisis ucapan lebih jelas.</string>\n    <string name=\"text_instruction_2\">Pastikan mikrofon berfungsi dan berada dekat mulut.</string>\n    <string name=\"desc_instruction_2\">Pastikan mikrofon berfungsi baik dan ditempatkan dekat mulut untuk menangkap suara dengan jelas dan mengurangi distorsi.</string>\n    <string name=\"text_instruction_3\">Siapkan skrip atau poin utama agar pembicaraan terarah.</string>\n    <string name=\"desc_instruction_3\">Siapkan skrip atau poin-poin utama sebelum percakapan agar terarah, jelas, dan mudah dianalisis untuk hasil lebih efektif.</string>\n    <string name=\"text_instruction_4\">Pastikan anda memiliki waktu yang cukup untuk merekam tanpa gangguan.</string>\n    <string name=\"desc_instruction_4\">Siapkan waktu cukup untuk merekam tanpa interupsi agar hasil analisis suara akurat dan <optimal class=\"\"></optimal></string>\n    <string name=\"text_instruction_5\">Posisikan diri dengan rileks dan nyaman</string>\n    <string name=\"desc_instruction_5\">Siapkan skrip atau poin-poin utama sebelum percakapan agar terarah, jelas, dan mudah dianalisis untuk hasil lebih efektif.></string>\n    <string name=\"account_name\"><![CDATA[Sign In >]]></string>\n    <string name=\"article_title\">Artikel</string>\n    <string name=\"article_description\">Ayo baca artikel untuk menambah\\nwawasan kamu</string>\n    <string name=\"account\">Account</string>\n    <string name=\"searchArticle\">Cari Artikel...</string>\n    <string name=\"hallo\">Hallo!</string>\n    <string name=\"article_summary\">Lorem Ipsum Dolor Sir Amet</string>\n    <string name=\"article_title_data\">Judul Artikel Judul Artikel Judul Artikel Judul Artikel Judul Artikel Judul Artikel Judul Artikel</string>\n    <string name=\"article_description_data\">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</string>\n    <string name=\"play\">Play</string>\n    <string name=\"riwayat_latihan\">Riwayat Latihan</string>\n    <string name=\"progres_latihan\">Progres Latihan</string>\n\n    <!--    data dummy article-->\n    <string-array name=\"tempdata_article_title\">\n        <item>Cara Mudah Meningkatkan Kepercayaan Diri saat Berada di Depan Umum</item>\n        <item>Metode Public Speaking: Pengertian, Tujuan, Metode, dan Tips</item>\n        <item>Retorik Adalah: Seni Berbicara yang Efektif dan Meyakinkan</item>\n        <item>Public Speaking: Arti, Metode, Manfaat, Tujuan, dan Cara Meningkatkan Skill-nya</item>\n        <item>Pakai Cara Ini Supaya Kamu Pede Ngomong di Depan Umum!</item>\n    </string-array>\n    <integer-array name=\"tempdata_article_image\">\n        <item>@drawable/tempdata_article_image1</item>\n        <item>@drawable/tempdata_article_image2</item>\n        <item>@drawable/tempdata_article_image3</item>\n        <item>@drawable/tempdata_article_image4</item>\n        <item>@drawable/tempdata_article_image5</item>\n    </integer-array>\n    <string-array name=\"tempdata_article_description\">\n        <item>Halo, sahabat pembelajar! Berbicara di depan umum sering kali dianggap sebagai momok yang menakutkan. Faktanya, sebuah survei oleh National Institute of Mental Health menunjukkan bahwa sekitar 73% orang merasa cemas ketika harus tampil di depan orang banyak. </item>\n        <item>Metode Public Speaking – Grameds, pernahkah kamu berbicara di depan umum? Jika pernah, maka itu berarti kamu sedang melakukan public speaking. Wah, keren ya pastinya, bisa berkomunikasi di depan banyak orang.</item>\n        <item>Retorika adalah seni berbicara secara efektif dan meyakinkan untuk mempengaruhi pendengar. Istilah ini berasal dari bahasa Yunani \"rhetorike\" yang berarti keterampilan berpidato. Dalam pengertian yang lebih luas, retorika mencakup kemampuan menggunakan bahasa lisan maupun tulisan untuk berkomunikasi secara persuasif.</item>\n        <item>Sebelum membahas metode dan cara meningkatkannya, pertama-tama kita perlu mengulas definisi dari soft skill tersebut. Melansir laman ThoughtCo, public speaking adalah sebuah seni berpidato, di mana pembicara berkomunikasi dengan audiensnya melalui presentasi lisan.</item>\n        <item>Pernahkah kamu mempresentasikan sesuatu di depan kelas? Atau pernahkah kamu berpidato untuk sebuah acara? Nah, itu adalah berbicara di depan umum. Berbicara di depan umum merupakan teknik berbicara yang dibutuhkan oleh pembicara agar bisa menarik semua perhatian audiens.</item>\n    </string-array>\n    <string-array name=\"tempdata_article_url\">\n        <item>https://www.kompasiana.com/salwaanur8965/671702aac925c424c2134192/cara-mudah-meningkatkan-kepercayaan-diri-saat-berada-di-depan-umum</item>\n        <item>https://www.gramedia.com/literasi/metode-public-speaking/</item>\n        <item>https://www.liputan6.com/feeds/read/5779700/retorik-adalah-seni-berbicara-yang-efektif-dan-meyakinkan</item>\n        <item>https://glints.com/id/lowongan/kemampuan-public-speaking/</item>\n        <item>https://www.generali.co.id/id/healthyliving/healthy-lifestyle/pakai-cara-ini-supaya-kamu-pede-ngomong-di-depan-umum</item>\n    </string-array>\n    <!--    data dummy article-->\n\n<!--History Page -->\n    <string name=\"hasil_analisis\">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus lacinia odio vitae vestibulum vestibulum. Cras venenatis euismod malesuada. Integer lacinia, nunc at aliquet sagittis, nunc dui varius libero, at pulvinar odio velit sit amet lectus. Nullam euismod, felis sit amet interdum scelerisque, lacus nisi egestas risus, sit amet vestibulum nisi sapien eu libero. Aliquam erat volutpat. Integer ut dolor quis risus vehicula vehicula ut sit amet eros. Nam suscipit eros a sapien viverra, a facilisis ipsum ultrices.Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Quisque at semper sem. Fusce mollis, nunc eu suscipit ultricies, velit nulla venenatis metus, in tincidunt tortor sapien id augue. Nunc fringilla dui non libero suscipit, non vehicula metus pretium. Cras ac volutpat elit. Vestibulum efficitur felis vel velit convallis, non pharetra sem aliquet. Suspendisse potenti. Vivamus sed laoreet nunc.Curabitr dapibus vulputate arcu, nec rhoncus nulla vestibulum nec. Etiam congue dui non odio fermentum, a consectetur tortor aliquam. Fusce at venenatis arcu. Aenean ultricies efficitur lacus, non tristique urna. Nam gravida bibendum arcu, eget luctus odio volutpat ut. Proin porttitor nulla in arcu fermentum, a cursus dolor consequat. Nunc suscipit tellus vel neque auctor imperdiet. Integer at dolor non elit luctus molestie. Mauris ut turpis bibendum, dapibus neque id, porttitor magna. Nullam aliquet tristique justo, in sagittis lorem viverra vel. Vivamus fermentum, quam a porttitor efficitur, sapien leo lacinia nunc, at luctus nunc sem eget felis. Fusce et nisl at odio dictum venenatis et et justo.Donec ut bibendum urna. Suspendisse non urna sed felis aliquam pretium. Nulla facilisi. Curabitur mollis purus eu facilisis cursus. Aliquam erat volutpat. Nullam condimentum, arcu eget luctus fermentum, risus ante bibendum massa, vel volutpat velit sapien non dolor. Aliquam sed bibendum ipsum. Quisque scelerisque vehicula velit, ut rhoncus dui eleifend non. Nam ornare, ex sed consectetur aliquet, enim urna vehicula libero, sed varius nisl lorem in ex. Integer ut turpis ut odio efficitur ultricies. Maecenas sagittis varius est, sed bibendum urna cursus in. Etiam id ultrices turpis. Sed et tortor sit amet nulla gravida ultricies.Aenean nec vestibulum mauris. Sed sit amet velit euismod, vehicula tortor a, feugiat erat. Cras lobortis mauris magna, vel gravida odio sollicitudin eu. Integer et augue eget nulla vehicula sollicitudin et ac nulla. Etiam ornare lacus vitae urna bibendum, nec eleifend metus convallis. Morbi nec ante at libero facilisis venenatis. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Sed nec tempor urna, id porttitor arcu. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Ut ultricies tincidunt arcu nec venenatis. Suspendisse volutpat quam id risus bibendum, sit amet luctus erat consequat. Donec ac velit ac ligula facilisis vestibulum.Morbi dapibus odio vitae metus tempor, id blandit ex ornare. Nunc maximus, justo sit amet viverra laoreet, magna nisl fermentum mauris, eget efficitur orci urna at est. Integer eu enim et lectus volutpat tempus eget eget augue. Sed ac neque a ipsum scelerisque dignissim non a augue. Sed nec enim quis nunc posuere sodales. Nam egestas nibh non mi volutpat interdum. Aliquam erat volutpat.Duis sollicitudin est nisl, ut ultricies nisl fermentum vel. Cras ornare hendrerit lectus, vitae dignissim magna. Donec dapibus dui ac ligula cursus, ut tincidunt orci aliquet. Vivamus a leo posuere, accumsan lacus vel, euismod ex. Pellentesque et urna sit amet velit facilisis bibendum. Proin nec ligula nec libero pharetra rhoncus. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Nulla facilisi. Suspendisse potenti. Fusce nec varius libero. Nulla facilisi. Nullam ultrices eros a orci fermentum, id scelerisque ante auctor. Vivamus convallis augue a odio finibus, nec pulvinar ante vulputate.Ut ut vulputate mi. Integer finibus scelerisque sagittis. In varius libero vitae ultrices tempus. Vivamus at dolor nec turpis tincidunt euismod. Fusce bibendum neque nec efficitur convallis. Pellentesque id tincidunt nisi. Duis fermentum augue id risus varius, et bibendum dui aliquet. Aenean condimentum placerat risus, ut ultricies magna gravida eget. Ut in sem felis.Nullam fermentum nulla nec lectus lacinia, non posuere magna pharetra. Curabitur sit amet dui id nulla hendrerit gravida at vitae sapien. Etiam dictum vitae ex a egestas. Donec ut dui scelerisque, congue sem vel, hendrerit ligula. Mauris fermentum nulla id dolor hendrerit, quis porta erat auctor. Fusce eu nisl elit. Nulla facilisi. In sed venenatis augue. Fusce non magna a ante facilisis fringilla. Aliquam erat volutpat. Aliquam erat volutpat. Nulla facilisi. Proin vestibulum, lectus nec cursus rhoncus, eros dui sollicitudin urna, at dignissim nunc lectus et magna. Praesent dapibus vulputate nisi, eget faucibus velit sollicitudin ut.Nam mollis augue et purus efficitur, vel blandit erat vehicula. Fusce dapibus ullamcorper malesuada. Nulla auctor, leo sed maximus fermentum, justo ligula fermentum lacus, non fringilla mauris nunc sit amet nunc. Integer ac sapien lectus. Aliquam erat volutpat. Suspendisse tempus interdum ipsum, eu ullamcorper risus. Phasellus euismod mi a ex viverra, ac fermentum eros tincidunt. Suspendisse potenti. Suspendisse auctor velit vel libero feugiat bibendum. Vivamus in libero sed elit egestas rutrum.\n</string>\n    <string name=\"tvPageAnalisis\">Hasil Analisis</string>\n</resources>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/res/values/strings.xml b/app/src/main/res/values/strings.xml
+--- a/app/src/main/res/values/strings.xml	(revision 10a1ae89f3453c826e0bc62b7558e4c487b69634)
++++ b/app/src/main/res/values/strings.xml	(date 1732017602683)
+@@ -29,16 +29,16 @@
+     <string name="analyze">Analisis</string>
+ 
+     <!--Instruction Slide-->
+-    <string name="text_instruction_1">Berada di ruangan senyap untuk mengurangi gangguan suara. </string>
+-    <string name="desc_instruction_1">Untuk analisis suara yang akurat, berada di ruangan senyap agar aplikasi mendeteksi dan menganalisis ucapan lebih jelas.</string>
+-    <string name="text_instruction_2">Pastikan mikrofon berfungsi dan berada dekat mulut.</string>
+-    <string name="desc_instruction_2">Pastikan mikrofon berfungsi baik dan ditempatkan dekat mulut untuk menangkap suara dengan jelas dan mengurangi distorsi.</string>
++    <string name="text_instruction_1">Pastikan Anda berada di ruangan yang senyap untuk mengurangi gangguan suara. </string>
++    <string name="desc_instruction_1">Untuk hasil analisis suara yang akurat, pastikan Anda berada di ruangan yang senyap dan minim gangguan suara. Keheningan lingkungan sekitar akan membantu aplikasi dalam mendeteksi dan menganalisis ucapan dengan lebih jelas, sehingga memberikan hasil yang lebih optimal.</string>
++    <string name="text_instruction_2">Pastikan mikrofon berfungsi baik dan berada pada jarak yang sesuai dari mulut.</string>
++    <string name="desc_instruction_2">Pastikan mikrofon Anda berfungsi dengan baik dan ditempatkan pada jarak yang tepat dari mulut. Posisi mikrofon yang ideal akan membantu menangkap suara dengan jelas, mengurangi distorsi, dan memastikan analisis yang lebih akurat.</string>
+     <string name="text_instruction_3">Siapkan skrip atau poin utama agar pembicaraan terarah.</string>
+-    <string name="desc_instruction_3">Siapkan skrip atau poin-poin utama sebelum percakapan agar terarah, jelas, dan mudah dianalisis untuk hasil lebih efektif.</string>
+-    <string name="text_instruction_4">Pastikan anda memiliki waktu yang cukup untuk merekam tanpa gangguan.</string>
+-    <string name="desc_instruction_4">Siapkan waktu cukup untuk merekam tanpa interupsi agar hasil analisis suara akurat dan <optimal class=""></optimal></string>
+-    <string name="text_instruction_5">Posisikan diri dengan rileks dan nyaman</string>
+-    <string name="desc_instruction_5">Siapkan skrip atau poin-poin utama sebelum percakapan agar terarah, jelas, dan mudah dianalisis untuk hasil lebih efektif.></string>
++    <string name="desc_instruction_3">Siapkan skrip atau poin-poin utama sebelum memulai percakapan. Dengan persiapan yang matang, pembicaraan akan lebih terarah, jelas, dan mudah dianalisis, sehingga aplikasi dapat memberikan hasil yang lebih efektif dan tepat.</string>
++    <string name="text_instruction_4">Pastikan Anda memiliki waktu yang cukup untuk merekam tanpa gangguan.Pastikan Anda memiliki waktu yang cukup untuk merekam tanpa gangguan.</string>
++    <string name="desc_instruction_4">Pastikan Anda memiliki waktu yang cukup untuk merekam tanpa gangguan. Menghindari interupsi akan memastikan proses perekaman berjalan lancar dan hasil analisis suara lebih akurat dan optimal.</string>
++    <string name="text_instruction_5">Posisikan diri dengan nyaman dan sesuai dengan kebutuhan.</string>
++    <string name="desc_instruction_5">Keadaan tubuh yang rileks akan membantu Anda berbicara lebih natural, sehingga perekaman suara menjadi lebih jelas dan analisis dapat dilakukan dengan lebih tepat</string>
+     <string name="account_name"><![CDATA[Sign In >]]></string>
+     <string name="article_title">Artikel</string>
+     <string name="article_description">Ayo baca artikel untuk menambah\nwawasan kamu</string>
+@@ -48,9 +48,6 @@
+     <string name="article_summary">Lorem Ipsum Dolor Sir Amet</string>
+     <string name="article_title_data">Judul Artikel Judul Artikel Judul Artikel Judul Artikel Judul Artikel Judul Artikel Judul Artikel</string>
+     <string name="article_description_data">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</string>
+-    <string name="play">Play</string>
+-    <string name="riwayat_latihan">Riwayat Latihan</string>
+-    <string name="progres_latihan">Progres Latihan</string>
+ 
+     <!--    data dummy article-->
+     <string-array name="tempdata_article_title">
+@@ -83,8 +80,4 @@
+     </string-array>
+     <!--    data dummy article-->
+ 
+-<!--History Page -->
+-    <string name="hasil_analisis">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus lacinia odio vitae vestibulum vestibulum. Cras venenatis euismod malesuada. Integer lacinia, nunc at aliquet sagittis, nunc dui varius libero, at pulvinar odio velit sit amet lectus. Nullam euismod, felis sit amet interdum scelerisque, lacus nisi egestas risus, sit amet vestibulum nisi sapien eu libero. Aliquam erat volutpat. Integer ut dolor quis risus vehicula vehicula ut sit amet eros. Nam suscipit eros a sapien viverra, a facilisis ipsum ultrices.Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Quisque at semper sem. Fusce mollis, nunc eu suscipit ultricies, velit nulla venenatis metus, in tincidunt tortor sapien id augue. Nunc fringilla dui non libero suscipit, non vehicula metus pretium. Cras ac volutpat elit. Vestibulum efficitur felis vel velit convallis, non pharetra sem aliquet. Suspendisse potenti. Vivamus sed laoreet nunc.Curabitr dapibus vulputate arcu, nec rhoncus nulla vestibulum nec. Etiam congue dui non odio fermentum, a consectetur tortor aliquam. Fusce at venenatis arcu. Aenean ultricies efficitur lacus, non tristique urna. Nam gravida bibendum arcu, eget luctus odio volutpat ut. Proin porttitor nulla in arcu fermentum, a cursus dolor consequat. Nunc suscipit tellus vel neque auctor imperdiet. Integer at dolor non elit luctus molestie. Mauris ut turpis bibendum, dapibus neque id, porttitor magna. Nullam aliquet tristique justo, in sagittis lorem viverra vel. Vivamus fermentum, quam a porttitor efficitur, sapien leo lacinia nunc, at luctus nunc sem eget felis. Fusce et nisl at odio dictum venenatis et et justo.Donec ut bibendum urna. Suspendisse non urna sed felis aliquam pretium. Nulla facilisi. Curabitur mollis purus eu facilisis cursus. Aliquam erat volutpat. Nullam condimentum, arcu eget luctus fermentum, risus ante bibendum massa, vel volutpat velit sapien non dolor. Aliquam sed bibendum ipsum. Quisque scelerisque vehicula velit, ut rhoncus dui eleifend non. Nam ornare, ex sed consectetur aliquet, enim urna vehicula libero, sed varius nisl lorem in ex. Integer ut turpis ut odio efficitur ultricies. Maecenas sagittis varius est, sed bibendum urna cursus in. Etiam id ultrices turpis. Sed et tortor sit amet nulla gravida ultricies.Aenean nec vestibulum mauris. Sed sit amet velit euismod, vehicula tortor a, feugiat erat. Cras lobortis mauris magna, vel gravida odio sollicitudin eu. Integer et augue eget nulla vehicula sollicitudin et ac nulla. Etiam ornare lacus vitae urna bibendum, nec eleifend metus convallis. Morbi nec ante at libero facilisis venenatis. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Sed nec tempor urna, id porttitor arcu. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Ut ultricies tincidunt arcu nec venenatis. Suspendisse volutpat quam id risus bibendum, sit amet luctus erat consequat. Donec ac velit ac ligula facilisis vestibulum.Morbi dapibus odio vitae metus tempor, id blandit ex ornare. Nunc maximus, justo sit amet viverra laoreet, magna nisl fermentum mauris, eget efficitur orci urna at est. Integer eu enim et lectus volutpat tempus eget eget augue. Sed ac neque a ipsum scelerisque dignissim non a augue. Sed nec enim quis nunc posuere sodales. Nam egestas nibh non mi volutpat interdum. Aliquam erat volutpat.Duis sollicitudin est nisl, ut ultricies nisl fermentum vel. Cras ornare hendrerit lectus, vitae dignissim magna. Donec dapibus dui ac ligula cursus, ut tincidunt orci aliquet. Vivamus a leo posuere, accumsan lacus vel, euismod ex. Pellentesque et urna sit amet velit facilisis bibendum. Proin nec ligula nec libero pharetra rhoncus. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Nulla facilisi. Suspendisse potenti. Fusce nec varius libero. Nulla facilisi. Nullam ultrices eros a orci fermentum, id scelerisque ante auctor. Vivamus convallis augue a odio finibus, nec pulvinar ante vulputate.Ut ut vulputate mi. Integer finibus scelerisque sagittis. In varius libero vitae ultrices tempus. Vivamus at dolor nec turpis tincidunt euismod. Fusce bibendum neque nec efficitur convallis. Pellentesque id tincidunt nisi. Duis fermentum augue id risus varius, et bibendum dui aliquet. Aenean condimentum placerat risus, ut ultricies magna gravida eget. Ut in sem felis.Nullam fermentum nulla nec lectus lacinia, non posuere magna pharetra. Curabitur sit amet dui id nulla hendrerit gravida at vitae sapien. Etiam dictum vitae ex a egestas. Donec ut dui scelerisque, congue sem vel, hendrerit ligula. Mauris fermentum nulla id dolor hendrerit, quis porta erat auctor. Fusce eu nisl elit. Nulla facilisi. In sed venenatis augue. Fusce non magna a ante facilisis fringilla. Aliquam erat volutpat. Aliquam erat volutpat. Nulla facilisi. Proin vestibulum, lectus nec cursus rhoncus, eros dui sollicitudin urna, at dignissim nunc lectus et magna. Praesent dapibus vulputate nisi, eget faucibus velit sollicitudin ut.Nam mollis augue et purus efficitur, vel blandit erat vehicula. Fusce dapibus ullamcorper malesuada. Nulla auctor, leo sed maximus fermentum, justo ligula fermentum lacus, non fringilla mauris nunc sit amet nunc. Integer ac sapien lectus. Aliquam erat volutpat. Suspendisse tempus interdum ipsum, eu ullamcorper risus. Phasellus euismod mi a ex viverra, ac fermentum eros tincidunt. Suspendisse potenti. Suspendisse auctor velit vel libero feugiat bibendum. Vivamus in libero sed elit egestas rutrum.
+-</string>
+-    <string name="tvPageAnalisis">Hasil Analisis</string>
+ </resources>
+\ No newline at end of file
+Index: app/src/main/java/com/example/kaizenspeaking/ui/home/HomeViewModel.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.example.kaizenspeaking.ui.home\n\nimport androidx.lifecycle.LiveData\nimport androidx.lifecycle.MutableLiveData\nimport androidx.lifecycle.ViewModel\nimport android.app.Application\nimport androidx.lifecycle.AndroidViewModel\nimport com.example.kaizenspeaking.R\n\nclass HomeViewModel(application: Application) : AndroidViewModel(application) {\n\n    private val context = application.applicationContext\n\n    val articleTitles: Array<String> = context.resources.getStringArray(R.array.tempdata_article_title)\n    val articleDescriptions: Array<String> = context.resources.getStringArray(R.array.tempdata_article_description)\n    val articleUrls: Array<String> = context.resources.getStringArray(R.array.tempdata_article_url)\n    val articleImages: IntArray = context.resources.obtainTypedArray(R.array.tempdata_article_image).let {\n        IntArray(it.length()) { index -> it.getResourceId(index, -1) }\n    }\n}\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/com/example/kaizenspeaking/ui/home/HomeViewModel.kt b/app/src/main/java/com/example/kaizenspeaking/ui/home/HomeViewModel.kt
+--- a/app/src/main/java/com/example/kaizenspeaking/ui/home/HomeViewModel.kt	(revision 10a1ae89f3453c826e0bc62b7558e4c487b69634)
++++ b/app/src/main/java/com/example/kaizenspeaking/ui/home/HomeViewModel.kt	(date 1732017494173)
+@@ -1,8 +1,5 @@
+ package com.example.kaizenspeaking.ui.home
+ 
+-import androidx.lifecycle.LiveData
+-import androidx.lifecycle.MutableLiveData
+-import androidx.lifecycle.ViewModel
+ import android.app.Application
+ import androidx.lifecycle.AndroidViewModel
+ import com.example.kaizenspeaking.R
+@@ -11,10 +8,13 @@
+ 
+     private val context = application.applicationContext
+ 
+-    val articleTitles: Array<String> = context.resources.getStringArray(R.array.tempdata_article_title)
+-    val articleDescriptions: Array<String> = context.resources.getStringArray(R.array.tempdata_article_description)
++    val articleTitles: Array<String> =
++        context.resources.getStringArray(R.array.tempdata_article_title)
++    val articleDescriptions: Array<String> =
++        context.resources.getStringArray(R.array.tempdata_article_description)
+     val articleUrls: Array<String> = context.resources.getStringArray(R.array.tempdata_article_url)
+-    val articleImages: IntArray = context.resources.obtainTypedArray(R.array.tempdata_article_image).let {
+-        IntArray(it.length()) { index -> it.getResourceId(index, -1) }
+-    }
++    val articleImages: IntArray =
++        context.resources.obtainTypedArray(R.array.tempdata_article_image).let {
++            IntArray(it.length()) { index -> it.getResourceId(index, -1) }
++        }
+ }
+Index: app/src/main/res/layout/fragment_home.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"utf-8\"?>\n<androidx.constraintlayout.widget.ConstraintLayout xmlns:android=\"http://schemas.android.com/apk/res/android\"\n    xmlns:app=\"http://schemas.android.com/apk/res-auto\"\n    xmlns:tools=\"http://schemas.android.com/tools\"\n    android:layout_width=\"match_parent\"\n    android:layout_height=\"match_parent\"\n    android:layout_marginStart=\"16dp\"\n    android:layout_marginEnd=\"16dp\"\n    tools:context=\".ui.home.HomeFragment\">\n\n    <TextView\n        android:id=\"@+id/accountName\"\n        android:layout_width=\"wrap_content\"\n        android:layout_height=\"wrap_content\"\n        android:layout_marginStart=\"4dp\"\n        android:layout_marginTop=\"20dp\"\n        android:text=\"@string/account_name\"\n        android:textColor=\"@color/black\"\n        android:textSize=\"20sp\"\n        android:textStyle=\"bold\"\n        app:layout_constraintStart_toStartOf=\"parent\"\n        app:layout_constraintTop_toTopOf=\"parent\" />\n\n    <ImageView\n        android:id=\"@+id/accountButton\"\n        android:layout_width=\"40dp\"\n        android:layout_height=\"40dp\"\n        android:layout_marginEnd=\"4dp\"\n        android:contentDescription=\"@string/account\"\n        android:src=\"@drawable/account_logo\"\n        app:layout_constraintBottom_toBottomOf=\"@+id/accountName\"\n        app:layout_constraintEnd_toEndOf=\"parent\"\n        app:layout_constraintTop_toTopOf=\"@+id/accountName\"\n        app:layout_constraintVertical_bias=\"0.307\" />\n\n    <LinearLayout\n        android:id=\"@+id/opening\"\n        android:layout_width=\"match_parent\"\n        android:layout_height=\"wrap_content\"\n        android:layout_marginTop=\"16dp\"\n        android:gravity=\"center\"\n        android:orientation=\"horizontal\"\n        app:layout_constraintTop_toBottomOf=\"@+id/accountButton\"\n        tools:layout_editor_absoluteX=\"0dp\">\n\n        <ImageView\n            android:id=\"@+id/vintage1\"\n            android:layout_width=\"127dp\"\n            android:layout_height=\"190dp\"\n            android:contentDescription=\"@string/hallo\"\n            android:src=\"@drawable/vintage1\" />\n\n        <LinearLayout\n            android:id=\"@+id/cardOpening\"\n            android:layout_width=\"match_parent\"\n            android:layout_height=\"wrap_content\"\n            android:gravity=\"center\"\n            android:orientation=\"vertical\"\n            android:padding=\"16dp\"> <!-- Set background color to red -->\n\n            <!-- Greeting Message -->\n            <TextView\n                android:id=\"@+id/greetingsCard\"\n                android:layout_width=\"wrap_content\"\n                android:layout_height=\"wrap_content\"\n                android:background=\"@drawable/rounded_rectangle_background\"\n                android:gravity=\"center\"\n                android:padding=\"16dp\"\n                android:text=\"Kamu belum melakukan login nih. Ayo login untuk menyimpan riwayat dan melihat perkembanganmu!\"\n                android:textColor=\"@android:color/white\"\n                android:textSize=\"16sp\" />\n\n            <!-- Button for \"Coba Analisis Sekarang\" -->\n            <TextView\n                android:id=\"@+id/greetingsButton\"\n                android:layout_width=\"wrap_content\"\n                android:layout_height=\"wrap_content\"\n                android:paddingTop=\"8dp\"\n                android:gravity=\"center\"\n                android:text=\"Coba Analisis Sekarang\"\n                android:textColor=\"@android:color/holo_blue_light\"\n                android:textSize=\"16sp\"/>\n        </LinearLayout>\n    </LinearLayout>\n\n    <TextView\n        android:id=\"@+id/ArticleTitle\"\n        android:layout_width=\"wrap_content\"\n        android:layout_height=\"wrap_content\"\n        android:layout_marginTop=\"4dp\"\n        android:text=\"@string/article_title\"\n        android:textSize=\"20sp\"\n        android:textStyle=\"bold\"\n        app:layout_constraintStart_toStartOf=\"parent\"\n        app:layout_constraintTop_toBottomOf=\"@+id/opening\" />\n\n    <TextView\n        android:id=\"@+id/articleDescription\"\n        android:layout_width=\"0dp\"\n        android:layout_height=\"wrap_content\"\n        android:layout_marginTop=\"8dp\"\n        android:text=\"@string/article_description\"\n        android:textColor=\"@color/black\"\n        app:layout_constraintStart_toStartOf=\"parent\"\n        app:layout_constraintTop_toBottomOf=\"@+id/ArticleTitle\" />\n\n    <androidx.cardview.widget.CardView\n        android:id=\"@+id/searchArticle\"\n        android:layout_width=\"0dp\"\n        android:layout_height=\"wrap_content\"\n        android:layout_marginTop=\"12dp\"\n        android:elevation=\"4dp\"\n        app:cardCornerRadius=\"20dp\"\n        app:layout_constraintEnd_toEndOf=\"parent\"\n        app:layout_constraintHorizontal_bias=\"0.432\"\n        app:layout_constraintStart_toStartOf=\"parent\"\n        app:layout_constraintTop_toBottomOf=\"@+id/articleDescription\">\n\n        <SearchView\n            android:id=\"@+id/searchView\"\n            android:layout_width=\"match_parent\"\n            android:layout_height=\"48dp\"\n            android:layout_margin=\"2dp\"\n            android:iconifiedByDefault=\"false\"\n            android:queryBackground=\"@android:color/transparent\"\n            android:queryHint=\"@string/searchArticle\" />\n    </androidx.cardview.widget.CardView>\n\n    <androidx.core.widget.NestedScrollView\n        android:layout_width=\"match_parent\"\n        android:layout_height=\"0dp\"\n        android:layout_marginTop=\"12dp\"\n        app:layout_constraintBottom_toBottomOf=\"parent\"\n        app:layout_constraintEnd_toEndOf=\"parent\"\n        app:layout_constraintStart_toStartOf=\"parent\"\n        app:layout_constraintTop_toBottomOf=\"@+id/searchArticle\">\n\n        <LinearLayout\n            android:layout_width=\"match_parent\"\n            android:layout_height=\"wrap_content\"\n            android:orientation=\"vertical\">\n\n            <!-- RecyclerView -->\n            <androidx.recyclerview.widget.RecyclerView\n                android:id=\"@+id/ArticlesRecyclerView\"\n                android:layout_width=\"match_parent\"\n                android:layout_height=\"wrap_content\"\n                android:nestedScrollingEnabled=\"false\" />\n        </LinearLayout>\n    </androidx.core.widget.NestedScrollView>\n\n\n</androidx.constraintlayout.widget.ConstraintLayout>\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/res/layout/fragment_home.xml b/app/src/main/res/layout/fragment_home.xml
+--- a/app/src/main/res/layout/fragment_home.xml	(revision 10a1ae89f3453c826e0bc62b7558e4c487b69634)
++++ b/app/src/main/res/layout/fragment_home.xml	(date 1732017494175)
+@@ -145,7 +145,8 @@
+                 android:id="@+id/ArticlesRecyclerView"
+                 android:layout_width="match_parent"
+                 android:layout_height="wrap_content"
+-                android:nestedScrollingEnabled="false" />
++                android:nestedScrollingEnabled="false"
++                tools:listitem="@layout/item_article" />
+         </LinearLayout>
+     </androidx.core.widget.NestedScrollView>
+ 
+Index: app/src/main/java/com/example/kaizenspeaking/ui/home_signed/HomeSignedFragment.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/com/example/kaizenspeaking/ui/home_signed/HomeSignedFragment.kt b/app/src/main/java/com/example/kaizenspeaking/ui/home_signed/HomeSignedFragment.kt
+new file mode 100644
+--- /dev/null	(date 1732017494174)
++++ b/app/src/main/java/com/example/kaizenspeaking/ui/home_signed/HomeSignedFragment.kt	(date 1732017494174)
+@@ -0,0 +1,130 @@
++package com.example.kaizenspeaking.ui.home_signed
++
++import android.os.Bundle
++import android.util.TypedValue
++import android.view.LayoutInflater
++import android.view.View
++import android.view.ViewGroup
++import androidx.fragment.app.Fragment
++import androidx.lifecycle.ViewModelProvider
++import androidx.recyclerview.widget.LinearLayoutManager
++import com.example.kaizenspeaking.databinding.FragmentHomeSignedBinding
++import com.example.kaizenspeaking.ui.home.Article
++import com.example.kaizenspeaking.ui.home.ArticleAdapter
++import com.github.mikephil.charting.charts.LineChart
++import com.github.mikephil.charting.data.Entry
++import com.github.mikephil.charting.data.LineData
++import com.github.mikephil.charting.data.LineDataSet
++
++class HomeSignedFragment : Fragment() {
++
++    private var _binding: FragmentHomeSignedBinding? = null
++    private val binding get() = _binding!!
++
++    private lateinit var lineChart: LineChart
++    private lateinit var homeSignedViewModel: HomeSignedViewModel
++
++    override fun onCreateView(
++        inflater: LayoutInflater, container: ViewGroup?,
++        savedInstanceState: Bundle?
++    ): View? {
++        homeSignedViewModel = ViewModelProvider(this)[HomeSignedViewModel::class.java]
++        _binding = FragmentHomeSignedBinding.inflate(inflater, container, false)
++
++        // Initialize the LineChart
++        lineChart = binding.lineChart
++
++        // Initialize chart data in ViewModel
++        homeSignedViewModel.initChartData()
++
++        // Observe LiveData for chart entries
++        homeSignedViewModel.entriesA.observe(viewLifecycleOwner, { entriesA ->
++            val dataSetA = LineDataSet(entriesA, "Kejelasan")
++            dataSetA.color = resources.getColor(android.R.color.holo_blue_light)
++
++            // Similarly set up other datasets (B, C, D)
++            homeSignedViewModel.entriesB.observe(viewLifecycleOwner, { entriesB ->
++                val dataSetB = LineDataSet(entriesB, "Diksi")
++                dataSetB.color = resources.getColor(android.R.color.holo_green_light)
++
++                homeSignedViewModel.entriesC.observe(viewLifecycleOwner, { entriesC ->
++                    val dataSetC = LineDataSet(entriesC, "Kelancaran")
++                    dataSetC.color = resources.getColor(android.R.color.holo_red_light)
++
++                    homeSignedViewModel.entriesD.observe(viewLifecycleOwner, { entriesD ->
++                        val dataSetD = LineDataSet(entriesD, "Emosi")
++                        dataSetD.color = resources.getColor(android.R.color.holo_orange_light)
++
++                        // Create LineData object and set it on the chart
++                        val lineData = LineData(dataSetA, dataSetB, dataSetC, dataSetD)
++                        lineChart.data = lineData
++
++                        // Configure X Axis
++                        val xAxis = lineChart.xAxis
++                        xAxis.position =
++                            com.github.mikephil.charting.components.XAxis.XAxisPosition.BOTTOM
++                        xAxis.granularity = 1f
++                        xAxis.labelCount = entriesA.size
++                        xAxis.valueFormatter =
++                            object : com.github.mikephil.charting.formatter.ValueFormatter() {
++                                override fun getFormattedValue(value: Float): String {
++                                    return "${value.toInt()}"
++                                }
++                            }
++
++                        // Set Y Axis
++                        val leftYAxis = lineChart.axisLeft
++                        val rightYAxis = lineChart.axisRight
++                        leftYAxis.axisMinimum = 0f
++                        leftYAxis.valueFormatter =
++                            object : com.github.mikephil.charting.formatter.ValueFormatter() {
++                                override fun getFormattedValue(value: Float): String {
++                                    return value.toInt().toString()
++                                }
++                            }
++                        rightYAxis.isEnabled = false
++
++                        lineChart.description.text = "Latihan Ke: "
++                        lineChart.setExtraOffsets(0f, 20f, 0f, 0f)
++
++                        // Configure Legend
++                        val legend = lineChart.legend
++                        legend.textSize = 10f
++                        legend.form =
++                            com.github.mikephil.charting.components.Legend.LegendForm.CIRCLE
++                        legend.formSize = 8f
++
++                        lineChart.invalidate() // Refresh chart
++                    })
++                })
++            })
++        })
++
++        // Initialize RecyclerView with ArticleAdapter
++        val articles = List(homeSignedViewModel.articleTitles.size) { index ->
++            Article(
++                title = homeSignedViewModel.articleTitles[index],
++                description = homeSignedViewModel.articleDescriptions[index],
++                image = homeSignedViewModel.articleImages[index],
++                url = homeSignedViewModel.articleUrls[index]
++            )
++        }
++
++        // Mengamati perubahan pada LiveData numberOfExercise
++        homeSignedViewModel.numberOfExercise.observe(viewLifecycleOwner, { newText ->
++            // Update TextView dengan nilai baru
++            binding.numberOfExerciseText.text = newText
++        })
++
++        val adapter = ArticleAdapter(requireContext(), articles)
++        binding.ArticlesRecyclerView.layoutManager = LinearLayoutManager(requireContext())
++        binding.ArticlesRecyclerView.adapter = adapter
++
++        return binding.root
++    }
++
++    override fun onDestroyView() {
++        super.onDestroyView()
++        _binding = null
++    }
++}
+Index: app/src/main/java/com/example/kaizenspeaking/ui/home/HomeFragment.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.example.kaizenspeaking.ui.home\n\nimport android.os.Bundle\nimport android.view.LayoutInflater\nimport android.view.View\nimport android.view.ViewGroup\nimport androidx.fragment.app.Fragment\nimport androidx.lifecycle.ViewModelProvider\nimport androidx.recyclerview.widget.LinearLayoutManager\nimport com.example.kaizenspeaking.databinding.FragmentHomeBinding\n\nclass HomeFragment : Fragment() {\n\n    private var _binding: FragmentHomeBinding? = null\n    private val binding get() = _binding!!\n\n    override fun onCreateView(\n        inflater: LayoutInflater,\n        container: ViewGroup?,\n        savedInstanceState: Bundle?\n    ): View {\n        val homeViewModel = ViewModelProvider(this)[HomeViewModel::class.java]\n        _binding = FragmentHomeBinding.inflate(inflater, container, false)\n\n        val articles = List(homeViewModel.articleTitles.size) { index ->\n            Article(\n                title = homeViewModel.articleTitles[index],\n                description = homeViewModel.articleDescriptions[index],\n                image = homeViewModel.articleImages[index],\n                url = homeViewModel.articleUrls[index]\n            )\n        }\n\n        val adapter = ArticleAdapter(requireContext(), articles)\n        binding.ArticlesRecyclerView.layoutManager = LinearLayoutManager(requireContext())\n        binding.ArticlesRecyclerView.adapter = adapter\n\n        return binding.root\n    }\n\n    override fun onDestroyView() {\n        super.onDestroyView()\n        _binding = null\n    }\n}\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/com/example/kaizenspeaking/ui/home/HomeFragment.kt b/app/src/main/java/com/example/kaizenspeaking/ui/home/HomeFragment.kt
+--- a/app/src/main/java/com/example/kaizenspeaking/ui/home/HomeFragment.kt	(revision 10a1ae89f3453c826e0bc62b7558e4c487b69634)
++++ b/app/src/main/java/com/example/kaizenspeaking/ui/home/HomeFragment.kt	(date 1732017494173)
+@@ -4,13 +4,15 @@
+ import android.view.LayoutInflater
+ import android.view.View
+ import android.view.ViewGroup
++import androidx.appcompat.app.AppCompatActivity
+ import androidx.fragment.app.Fragment
+ import androidx.lifecycle.ViewModelProvider
++import androidx.navigation.fragment.findNavController
+ import androidx.recyclerview.widget.LinearLayoutManager
++import com.example.kaizenspeaking.R
+ import com.example.kaizenspeaking.databinding.FragmentHomeBinding
+ 
+ class HomeFragment : Fragment() {
+-
+     private var _binding: FragmentHomeBinding? = null
+     private val binding get() = _binding!!
+ 
+@@ -19,9 +21,11 @@
+         container: ViewGroup?,
+         savedInstanceState: Bundle?
+     ): View {
++        (requireActivity() as AppCompatActivity).supportActionBar?.hide()
+         val homeViewModel = ViewModelProvider(this)[HomeViewModel::class.java]
+         _binding = FragmentHomeBinding.inflate(inflater, container, false)
+ 
++        // Initialize RecyclerView with ArticleAdapter
+         val articles = List(homeViewModel.articleTitles.size) { index ->
+             Article(
+                 title = homeViewModel.articleTitles[index],
+@@ -35,6 +39,11 @@
+         binding.ArticlesRecyclerView.layoutManager = LinearLayoutManager(requireContext())
+         binding.ArticlesRecyclerView.adapter = adapter
+ 
++        // Set onClickListener for accountName
++        binding.accountName.setOnClickListener {
++            val navController = findNavController()
++            navController.navigate(R.id.navigation_home_signed) // Navigasi ke HomeSignedFragment
++        }
+         return binding.root
+     }
+ 
+Index: app/src/main/java/com/example/kaizenspeaking/ui/home_signed/HomeSignedViewModel.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/com/example/kaizenspeaking/ui/home_signed/HomeSignedViewModel.kt b/app/src/main/java/com/example/kaizenspeaking/ui/home_signed/HomeSignedViewModel.kt
+new file mode 100644
+--- /dev/null	(date 1732017494174)
++++ b/app/src/main/java/com/example/kaizenspeaking/ui/home_signed/HomeSignedViewModel.kt	(date 1732017494174)
+@@ -0,0 +1,72 @@
++package com.example.kaizenspeaking.ui.home_signed
++
++import androidx.lifecycle.LiveData
++import androidx.lifecycle.MutableLiveData
++import androidx.lifecycle.ViewModel
++import android.app.Application
++import androidx.lifecycle.AndroidViewModel
++import com.example.kaizenspeaking.R
++import com.github.mikephil.charting.data.Entry
++import com.github.mikephil.charting.data.LineDataSet
++
++class HomeSignedViewModel(application: Application) : AndroidViewModel(application) {
++    private val context = application.applicationContext
++
++    // Data untuk chart
++    private val _entriesA = MutableLiveData<List<Entry>>()
++    val entriesA: LiveData<List<Entry>> get() = _entriesA
++
++    private val _entriesB = MutableLiveData<List<Entry>>()
++    val entriesB: LiveData<List<Entry>> get() = _entriesB
++
++    private val _entriesC = MutableLiveData<List<Entry>>()
++    val entriesC: LiveData<List<Entry>> get() = _entriesC
++
++    private val _entriesD = MutableLiveData<List<Entry>>()
++    val entriesD: LiveData<List<Entry>> get() = _entriesD
++
++    // Method to initialize data
++    fun initChartData() {
++        val dataA = arrayOf(65f, 70f, 80f, 85f, 92f, 94f)
++        val dataB = arrayOf(50f, 52f, 60f, 75f, 85f, 95f)
++        val dataC = arrayOf(70f, 72f, 75f, 79f, 82f, 85f)
++        val dataD = arrayOf(40f, 65f, 75f, 80f, 83f, 90f)
++
++        val entriesA = ArrayList<Entry>()
++        val entriesB = ArrayList<Entry>()
++        val entriesC = ArrayList<Entry>()
++        val entriesD = ArrayList<Entry>()
++
++        for (i in dataA.indices) {
++            entriesA.add(Entry((i + 1).toFloat(), dataA[i]))
++            entriesB.add(Entry((i + 1).toFloat(), dataB[i]))
++            entriesC.add(Entry((i + 1).toFloat(), dataC[i]))
++            entriesD.add(Entry((i + 1).toFloat(), dataD[i]))
++        }
++
++        _entriesA.value = entriesA
++        _entriesB.value = entriesB
++        _entriesC.value = entriesC
++        _entriesD.value = entriesD
++
++        // Update the number of exercises based on the length of dataA
++        _numberOfExercise.value = "Banyak Latihan: ${dataA.size}"
++    }
++
++    // LiveData untuk mengubah jumlah latihan
++    private val _numberOfExercise = MutableLiveData<String>()
++    val numberOfExercise: LiveData<String> get() = _numberOfExercise
++
++    // Initialize number of exercises based on the number of articles
++    init {
++        // Inisialisasi nilai jumlah latihan
++        _numberOfExercise.value = "Banyak Latihan: 0"  // Nilai default
++    }
++
++    val articleTitles: Array<String> = context.resources.getStringArray(R.array.tempdata_article_title)
++    val articleDescriptions: Array<String> = context.resources.getStringArray(R.array.tempdata_article_description)
++    val articleUrls: Array<String> = context.resources.getStringArray(R.array.tempdata_article_url)
++    val articleImages: IntArray = context.resources.obtainTypedArray(R.array.tempdata_article_image).let {
++        IntArray(it.length()) { index -> it.getResourceId(index, -1) }
++    }
++}
+Index: app/src/main/res/menu/bottom_nav_menu.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"utf-8\"?>\n<menu xmlns:android=\"http://schemas.android.com/apk/res/android\">\n\n    <item\n        android:id=\"@+id/navigation_home\"\n        android:icon=\"@drawable/ic_home_black_24dp\"\n        android:title=\"@string/title_home\" />\n\n    <item\n        android:id=\"@+id/navigation_analyze\"\n        android:icon=\"@drawable/ic_mic_24\"\n        android:title=\"@string/title_analyze\" />\n\n    <item\n        android:id=\"@+id/navigation_history\"\n        android:icon=\"@drawable/ic_history_24\"\n        android:title=\"@string/title_history\" />\n\n</menu>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/res/menu/bottom_nav_menu.xml b/app/src/main/res/menu/bottom_nav_menu.xml
+--- a/app/src/main/res/menu/bottom_nav_menu.xml	(revision 10a1ae89f3453c826e0bc62b7558e4c487b69634)
++++ b/app/src/main/res/menu/bottom_nav_menu.xml	(date 1732017494175)
+@@ -15,5 +15,4 @@
+         android:id="@+id/navigation_history"
+         android:icon="@drawable/ic_history_24"
+         android:title="@string/title_history" />
+-
+ </menu>
+\ No newline at end of file
+Index: app/build.gradle.kts
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>plugins {\n    alias(libs.plugins.android.application)\n    alias(libs.plugins.kotlin.android)\n}\n\nandroid {\n    namespace = \"com.example.kaizenspeaking\"\n    compileSdk = 35\n\n    defaultConfig {\n        applicationId = \"com.example.kaizenspeaking\"\n        minSdk = 24\n        targetSdk = 34\n        versionCode = 1\n        versionName = \"1.0\"\n\n        testInstrumentationRunner = \"androidx.test.runner.AndroidJUnitRunner\"\n    }\n\n    buildTypes {\n        release {\n            isMinifyEnabled = false\n            proguardFiles(\n                getDefaultProguardFile(\"proguard-android-optimize.txt\"),\n                \"proguard-rules.pro\"\n            )\n        }\n    }\n    compileOptions {\n        sourceCompatibility = JavaVersion.VERSION_1_8\n        targetCompatibility = JavaVersion.VERSION_1_8\n    }\n    kotlinOptions {\n        jvmTarget = \"1.8\"\n    }\n    buildFeatures {\n        viewBinding = true\n        //noinspection DataBindingWithoutKapt\n        dataBinding = true\n    }\n}\n\ndependencies {\n\n    implementation(libs.androidx.core.ktx)\n    implementation(libs.androidx.appcompat)\n    implementation(libs.material)\n    implementation(libs.androidx.constraintlayout)\n    implementation(libs.androidx.lifecycle.livedata.ktx)\n    implementation(libs.androidx.lifecycle.viewmodel.ktx)\n    implementation(libs.androidx.navigation.fragment.ktx)\n    implementation(libs.androidx.navigation.ui.ktx)\n    implementation(libs.androidx.activity)\n    implementation(libs.androidx.recyclerview)\n    testImplementation(libs.junit)\n    androidTestImplementation(libs.androidx.junit)\n    androidTestImplementation(libs.androidx.espresso.core)\n\n    implementation(libs.androidx.core.splashscreen)\n\n//    Chart\n    implementation (libs.mpandroidchart)\n    implementation (libs.simple.gauge.android)\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/build.gradle.kts b/app/build.gradle.kts
+--- a/app/build.gradle.kts	(revision 10a1ae89f3453c826e0bc62b7558e4c487b69634)
++++ b/app/build.gradle.kts	(date 1732017554340)
+@@ -35,8 +35,6 @@
+     }
+     buildFeatures {
+         viewBinding = true
+-        //noinspection DataBindingWithoutKapt
+-        dataBinding = true
+     }
+ }
+ 
+@@ -51,7 +49,6 @@
+     implementation(libs.androidx.navigation.fragment.ktx)
+     implementation(libs.androidx.navigation.ui.ktx)
+     implementation(libs.androidx.activity)
+-    implementation(libs.androidx.recyclerview)
+     testImplementation(libs.junit)
+     androidTestImplementation(libs.androidx.junit)
+     androidTestImplementation(libs.androidx.espresso.core)
+@@ -60,5 +57,4 @@
+ 
+ //    Chart
+     implementation (libs.mpandroidchart)
+-    implementation (libs.simple.gauge.android)
+ }
+\ No newline at end of file
+Index: .idea/inspectionProfiles/Project_Default.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/inspectionProfiles/Project_Default.xml b/.idea/inspectionProfiles/Project_Default.xml
+new file mode 100644
+--- /dev/null	(date 1732017494172)
++++ b/.idea/inspectionProfiles/Project_Default.xml	(date 1732017494172)
+@@ -0,0 +1,6 @@
++<component name="InspectionProjectProfileManager">
++  <profile version="1.0">
++    <option name="myName" value="Project Default" />
++    <inspection_tool class="AndroidLintUnsafeImplicitIntentLaunch" enabled="false" level="ERROR" enabled_by_default="false" />
++  </profile>
++</component>
+\ No newline at end of file
+Index: app/src/main/res/layout/fragment_home_signed.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/res/layout/fragment_home_signed.xml b/app/src/main/res/layout/fragment_home_signed.xml
+new file mode 100644
+--- /dev/null	(date 1732017494175)
++++ b/app/src/main/res/layout/fragment_home_signed.xml	(date 1732017494175)
+@@ -0,0 +1,158 @@
++<?xml version="1.0" encoding="utf-8"?>
++<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
++    xmlns:app="http://schemas.android.com/apk/res-auto"
++    xmlns:tools="http://schemas.android.com/tools"
++    android:layout_width="match_parent"
++    android:layout_height="match_parent"
++    android:layout_marginStart="16dp"
++    android:layout_marginEnd="16dp"
++    tools:context=".ui.home_signed.HomeSignedFragment">
++
++    <TextView
++        android:id="@+id/accountName"
++        android:layout_width="wrap_content"
++        android:layout_height="wrap_content"
++        android:layout_marginTop="20dp"
++        android:text="@string/greetings_with_name"
++        android:textColor="@color/black"
++        android:textSize="20sp"
++        android:textStyle="bold"
++        app:layout_constraintStart_toStartOf="parent"
++        app:layout_constraintTop_toTopOf="parent" />
++
++    <ImageView
++        android:id="@+id/accountButton"
++        android:layout_width="40dp"
++        android:layout_height="40dp"
++        android:layout_marginEnd="4dp"
++        android:contentDescription="@string/account"
++        android:src="@drawable/account_logo"
++        app:layout_constraintBottom_toBottomOf="@+id/accountName"
++        app:layout_constraintEnd_toEndOf="parent"
++        app:layout_constraintTop_toTopOf="@+id/accountName"
++        app:layout_constraintVertical_bias="0.307" />
++
++    <TextView
++        android:id="@+id/progress_title"
++        android:layout_width="wrap_content"
++        android:layout_height="wrap_content"
++        android:layout_marginTop="4dp"
++        android:text="@string/progress_title"
++        android:textSize="18sp"
++        android:textStyle="bold"
++        app:layout_constraintStart_toStartOf="parent"
++        app:layout_constraintTop_toBottomOf="@+id/accountButton" />
++
++    <androidx.cardview.widget.CardView
++        android:id="@+id/progress_chart_layout"
++        android:layout_width="0dp"
++        android:layout_height="280dp"
++        android:layout_marginStart="12dp"
++        android:layout_marginTop="12dp"
++        android:layout_marginEnd="12dp"
++        app:cardCornerRadius="16dp"
++        app:cardElevation="4dp"
++        app:layout_constraintEnd_toEndOf="parent"
++        app:layout_constraintStart_toStartOf="parent"
++        app:layout_constraintTop_toBottomOf="@+id/progress_title">
++
++        <LinearLayout
++            android:layout_width="match_parent"
++            android:layout_height="match_parent"
++            android:gravity="start"
++            android:orientation="vertical">
++
++            <TextView
++                android:id="@+id/number_of_exercise_text"
++                android:layout_width="wrap_content"
++                android:layout_height="wrap_content"
++                android:layout_marginStart="12dp"
++                android:layout_marginTop="12dp"
++                android:text="@string/number_of_exercise"
++                android:textColor="?attr/colorPrimary"
++                android:textSize="14sp"
++                android:textStyle="bold"
++                app:layout_constraintStart_toStartOf="parent"
++                app:layout_constraintTop_toBottomOf="@+id/progress_chart_layout" />
++
++            <com.github.mikephil.charting.charts.LineChart
++                android:id="@+id/lineChart"
++                android:layout_width="match_parent"
++                android:layout_height="match_parent"
++                android:layout_marginStart="12dp"
++                android:layout_marginEnd="12dp"
++                android:layout_marginBottom="12dp" />
++        </LinearLayout>
++
++    </androidx.cardview.widget.CardView>
++
++
++    <TextView
++        android:id="@+id/ArticleTitle"
++        android:layout_width="wrap_content"
++        android:layout_height="wrap_content"
++        android:layout_marginTop="12dp"
++        android:text="@string/article_title"
++        android:textSize="18sp"
++        android:textStyle="bold"
++        app:layout_constraintStart_toStartOf="parent"
++        app:layout_constraintTop_toBottomOf="@+id/progress_chart_layout" />
++
++    <TextView
++        android:id="@+id/articleDescription"
++        android:layout_width="0dp"
++        android:layout_height="wrap_content"
++        android:layout_marginTop="8dp"
++        android:text="@string/article_description"
++        android:textColor="@color/black"
++        app:layout_constraintStart_toStartOf="parent"
++        app:layout_constraintTop_toBottomOf="@+id/ArticleTitle" />
++
++    <androidx.cardview.widget.CardView
++        android:id="@+id/searchArticle"
++        android:layout_width="0dp"
++        android:layout_height="wrap_content"
++        android:layout_marginTop="12dp"
++        android:elevation="4dp"
++        app:cardCornerRadius="20dp"
++        app:layout_constraintEnd_toEndOf="parent"
++        app:layout_constraintHorizontal_bias="0.432"
++        app:layout_constraintStart_toStartOf="parent"
++        app:layout_constraintTop_toBottomOf="@+id/articleDescription">
++
++        <SearchView
++            android:id="@+id/searchView"
++            android:layout_width="match_parent"
++            android:layout_height="48dp"
++            android:layout_margin="2dp"
++            android:iconifiedByDefault="false"
++            android:queryBackground="@android:color/transparent"
++            android:queryHint="@string/searchArticle" />
++    </androidx.cardview.widget.CardView>
++
++    <androidx.core.widget.NestedScrollView
++        android:layout_width="match_parent"
++        android:layout_height="0dp"
++        android:layout_marginTop="12dp"
++        app:layout_constraintBottom_toBottomOf="parent"
++        app:layout_constraintEnd_toEndOf="parent"
++        app:layout_constraintStart_toStartOf="parent"
++        app:layout_constraintTop_toBottomOf="@+id/searchArticle">
++
++        <LinearLayout
++            android:layout_width="match_parent"
++            android:layout_height="wrap_content"
++            android:orientation="vertical">
++
++            <!-- RecyclerView -->
++            <androidx.recyclerview.widget.RecyclerView
++                android:id="@+id/ArticlesRecyclerView"
++                android:layout_width="match_parent"
++                android:layout_height="wrap_content"
++                android:nestedScrollingEnabled="false"
++                tools:listitem="@layout/item_article" />
++        </LinearLayout>
++    </androidx.core.widget.NestedScrollView>
++
++
++</androidx.constraintlayout.widget.ConstraintLayout>
+Index: gradle/libs.versions.toml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>[versions]\nagp = \"8.7.0\"\ncoreSplashscreen = \"1.0.0\"\ngaugelibrary = \"0.2.1\"\nkotlin = \"1.9.0\"\ncoreKtx = \"1.15.0\"\njunit = \"4.13.2\"\njunitVersion = \"1.2.1\"\nespressoCore = \"3.6.1\"\nappcompat = \"1.7.0\"\nmaterial = \"1.12.0\"\nconstraintlayout = \"2.2.0\"\nlifecycleLivedataKtx = \"2.8.7\"\nlifecycleViewmodelKtx = \"2.8.7\"\nmpandroidchart = \"v3.1.0\"\nnavigationFragmentKtx = \"2.6.0\"\nnavigationUiKtx = \"2.6.0\"\nactivity = \"1.9.3\"\nrecyclerview = \"1.3.2\"\nsimpleGaugeAndroid = \"0.3.1\"\n\n[libraries]\nandroidx-core-ktx = { group = \"androidx.core\", name = \"core-ktx\", version.ref = \"coreKtx\" }\nandroidx-core-splashscreen = { module = \"androidx.core:core-splashscreen\", version.ref = \"coreSplashscreen\" }\njunit = { group = \"junit\", name = \"junit\", version.ref = \"junit\" }\nandroidx-junit = { group = \"androidx.test.ext\", name = \"junit\", version.ref = \"junitVersion\" }\nandroidx-espresso-core = { group = \"androidx.test.espresso\", name = \"espresso-core\", version.ref = \"espressoCore\" }\nandroidx-appcompat = { group = \"androidx.appcompat\", name = \"appcompat\", version.ref = \"appcompat\" }\nmaterial = { group = \"com.google.android.material\", name = \"material\", version.ref = \"material\" }\nandroidx-constraintlayout = { group = \"androidx.constraintlayout\", name = \"constraintlayout\", version.ref = \"constraintlayout\" }\nandroidx-lifecycle-livedata-ktx = { group = \"androidx.lifecycle\", name = \"lifecycle-livedata-ktx\", version.ref = \"lifecycleLivedataKtx\" }\nandroidx-lifecycle-viewmodel-ktx = { group = \"androidx.lifecycle\", name = \"lifecycle-viewmodel-ktx\", version.ref = \"lifecycleViewmodelKtx\" }\nandroidx-navigation-fragment-ktx = { group = \"androidx.navigation\", name = \"navigation-fragment-ktx\", version.ref = \"navigationFragmentKtx\" }\nandroidx-navigation-ui-ktx = { group = \"androidx.navigation\", name = \"navigation-ui-ktx\", version.ref = \"navigationUiKtx\" }\nandroidx-activity = { group = \"androidx.activity\", name = \"activity\", version.ref = \"activity\" }\nmpandroidchart = { module = \"com.github.PhilJay:MPAndroidChart\", version.ref = \"mpandroidchart\" }\nandroidx-recyclerview = { group = \"androidx.recyclerview\", name = \"recyclerview\", version.ref = \"recyclerview\" }\nsimple-gauge-android = { module = \"com.github.Gruzer:simple-gauge-android\", version.ref = \"simpleGaugeAndroid\" }\n\n[plugins]\nandroid-application = { id = \"com.android.application\", version.ref = \"agp\" }\nkotlin-android = { id = \"org.jetbrains.kotlin.android\", version.ref = \"kotlin\" }\n\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/gradle/libs.versions.toml b/gradle/libs.versions.toml
+--- a/gradle/libs.versions.toml	(revision 10a1ae89f3453c826e0bc62b7558e4c487b69634)
++++ b/gradle/libs.versions.toml	(date 1732017615953)
+@@ -1,7 +1,6 @@
+ [versions]
+ agp = "8.7.0"
+ coreSplashscreen = "1.0.0"
+-gaugelibrary = "0.2.1"
+ kotlin = "1.9.0"
+ coreKtx = "1.15.0"
+ junit = "4.13.2"
+@@ -16,8 +15,6 @@
+ navigationFragmentKtx = "2.6.0"
+ navigationUiKtx = "2.6.0"
+ activity = "1.9.3"
+-recyclerview = "1.3.2"
+-simpleGaugeAndroid = "0.3.1"
+ 
+ [libraries]
+ androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+@@ -34,8 +31,6 @@
+ androidx-navigation-ui-ktx = { group = "androidx.navigation", name = "navigation-ui-ktx", version.ref = "navigationUiKtx" }
+ androidx-activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
+ mpandroidchart = { module = "com.github.PhilJay:MPAndroidChart", version.ref = "mpandroidchart" }
+-androidx-recyclerview = { group = "androidx.recyclerview", name = "recyclerview", version.ref = "recyclerview" }
+-simple-gauge-android = { module = "com.github.Gruzer:simple-gauge-android", version.ref = "simpleGaugeAndroid" }
+ 
+ [plugins]
+ android-application = { id = "com.android.application", version.ref = "agp" }
+Index: app/src/main/res/navigation/mobile_navigation.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"utf-8\"?>\n<navigation xmlns:android=\"http://schemas.android.com/apk/res/android\"\n    xmlns:app=\"http://schemas.android.com/apk/res-auto\"\n    xmlns:tools=\"http://schemas.android.com/tools\"\n    android:id=\"@+id/mobile_navigation\"\n    app:startDestination=\"@+id/navigation_home\">\n\n    <fragment\n        android:id=\"@+id/navigation_home\"\n        android:name=\"com.example.kaizenspeaking.ui.home.HomeFragment\"\n        android:label=\"@string/title_home\"\n        tools:layout=\"@layout/fragment_home\" />\n\n    <fragment\n        android:id=\"@+id/navigation_analyze\"\n        android:name=\"com.example.kaizenspeaking.ui.analyze.AnalyzeFragment\"\n        android:label=\"@string/title_analyze\"\n        tools:layout=\"@layout/fragment_analyze\" >\n        <action\n            android:id=\"@+id/action_navigation_analyze_to_analyzeResultFragment\"\n            app:destination=\"@id/analyzeResultFragment\" />\n    </fragment>\n\n    <fragment\n        android:id=\"@+id/navigation_history\"\n        android:name=\"com.example.kaizenspeaking.ui.history.HistoryFragment\"\n        android:label=\"@string/title_history\"\n        tools:layout=\"@layout/fragment_history\">\n        <action\n            android:id=\"@+id/action_navigation_history_to_trainingDetailFragment\"\n            app:destination=\"@id/trainingDetailFragment\" />\n    </fragment>\n\n    <fragment\n        android:id=\"@+id/analyzeResultFragment\"\n        android:name=\"com.example.kaizenspeaking.ui.analyze.AnalyzeResultFragment\"\n        android:label=\"fragment_analyze_result\"\n        tools:layout=\"@layout/fragment_analyze_result\" />\n\n    <fragment\n        android:id=\"@+id/trainingDetailFragment\"\n        android:name=\"com.example.kaizenspeaking.ui.history.detail.TrainingDetailFragment\"\n        android:label=\"Training Detail\"\n        tools:layout=\"@layout/fragment_training_detail\">\n        <!-- Add arguments that will be passed to the fragment -->\n        <argument\n            android:name=\"sessionId\"\n            app:argType=\"string\" />\n        <argument\n            android:name=\"sessionTitle\"\n            app:argType=\"string\" />\n    </fragment>\n\n\n</navigation>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/res/navigation/mobile_navigation.xml b/app/src/main/res/navigation/mobile_navigation.xml
+--- a/app/src/main/res/navigation/mobile_navigation.xml	(revision 10a1ae89f3453c826e0bc62b7558e4c487b69634)
++++ b/app/src/main/res/navigation/mobile_navigation.xml	(date 1732017575725)
+@@ -25,31 +25,11 @@
+         android:id="@+id/navigation_history"
+         android:name="com.example.kaizenspeaking.ui.history.HistoryFragment"
+         android:label="@string/title_history"
+-        tools:layout="@layout/fragment_history">
+-        <action
+-            android:id="@+id/action_navigation_history_to_trainingDetailFragment"
+-            app:destination="@id/trainingDetailFragment" />
+-    </fragment>
++        tools:layout="@layout/fragment_history" />
+ 
+     <fragment
+         android:id="@+id/analyzeResultFragment"
+         android:name="com.example.kaizenspeaking.ui.analyze.AnalyzeResultFragment"
+         android:label="fragment_analyze_result"
+         tools:layout="@layout/fragment_analyze_result" />
+-
+-    <fragment
+-        android:id="@+id/trainingDetailFragment"
+-        android:name="com.example.kaizenspeaking.ui.history.detail.TrainingDetailFragment"
+-        android:label="Training Detail"
+-        tools:layout="@layout/fragment_training_detail">
+-        <!-- Add arguments that will be passed to the fragment -->
+-        <argument
+-            android:name="sessionId"
+-            app:argType="string" />
+-        <argument
+-            android:name="sessionTitle"
+-            app:argType="string" />
+-    </fragment>
+-
+-
+ </navigation>
+\ No newline at end of file

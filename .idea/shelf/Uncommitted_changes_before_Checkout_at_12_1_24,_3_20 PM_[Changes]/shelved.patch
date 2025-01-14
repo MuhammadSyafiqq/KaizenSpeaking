@@ -1,0 +1,65 @@
+Index: app/src/main/java/com/example/kaizenspeaking/MainActivity.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.example.kaizenspeaking\n\nimport android.os.Bundle\nimport android.os.Handler\nimport android.os.Looper\nimport android.util.Log\nimport com.google.android.material.bottomnavigation.BottomNavigationView\nimport androidx.appcompat.app.AppCompatActivity\nimport androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen\nimport androidx.fragment.app.Fragment\nimport androidx.lifecycle.ViewModelProvider\nimport androidx.navigation.NavController\nimport androidx.navigation.Navigation\nimport androidx.navigation.findNavController\nimport androidx.navigation.fragment.NavHostFragment\nimport androidx.navigation.ui.AppBarConfiguration\nimport androidx.navigation.ui.NavigationUI\nimport androidx.navigation.ui.setupActionBarWithNavController\nimport androidx.navigation.ui.setupWithNavController\nimport com.example.kaizenspeaking.databinding.ActivityMainBinding\nimport com.example.kaizenspeaking.helper.DeviceIdHelper\nimport com.example.kaizenspeaking.helper.SharedPreferencesHelper\nimport com.example.kaizenspeaking.ui.auth.data.User\nimport com.example.kaizenspeaking.ui.home.HomeFragment\nimport com.example.kaizenspeaking.ui.home_signed.HomeSignedFragment\nimport com.example.kaizenspeaking.ui.home_signed.HomeSignedViewModel\nimport com.example.kaizenspeaking.utils.UserSession\n\nclass MainActivity : AppCompatActivity() {\n\n    private lateinit var binding: ActivityMainBinding\n    private lateinit var bottomNavigationView: BottomNavigationView\n    private lateinit var homeSignedViewModel: HomeSignedViewModel\n    private lateinit var navController: NavController\n\n    private var show = false\n    override fun onCreate(savedInstanceState: Bundle?) {\n        super.onCreate(savedInstanceState)\n\n\n        binding = ActivityMainBinding.inflate(layoutInflater)\n        setContentView(binding.root)\n        val navHostFragment = supportFragmentManager\n            .findFragmentById(R.id.nav_host_fragment) as NavHostFragment\n        navController = navHostFragment.navController\n\n\n\n        // Cek dan buat Device ID\n        val deviceIdKey = \"device_id\"\n        var deviceId = SharedPreferencesHelper.getFromSharedPreferences(this, deviceIdKey)\n        if (deviceId == null) {\n            deviceId = DeviceIdHelper.getUniqueDeviceId(this)\n            SharedPreferencesHelper.saveToSharedPreferences(this, deviceIdKey, deviceId)\n            Log.d(\"DeviceID\", \"Generated new Device ID: $deviceId\")\n        } else {\n            Log.d(\"DeviceID\", \"Existing Device ID: $deviceId\")\n        }\n\n        //Test Change2\n        installSplashScreen().setKeepOnScreenCondition{ show }\n        Handler(Looper.getMainLooper()).postDelayed({\n            show = false\n        }, 2000)\n\n\n\n\n    }\n\n\n\n}\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/com/example/kaizenspeaking/MainActivity.kt b/app/src/main/java/com/example/kaizenspeaking/MainActivity.kt
+--- a/app/src/main/java/com/example/kaizenspeaking/MainActivity.kt	(revision 422307c7dfb7c86a57abe42034d5fe38da86fd99)
++++ b/app/src/main/java/com/example/kaizenspeaking/MainActivity.kt	(date 1733041181324)
+@@ -40,11 +40,14 @@
+ 
+         binding = ActivityMainBinding.inflate(layoutInflater)
+         setContentView(binding.root)
+-        val navHostFragment = supportFragmentManager
+-            .findFragmentById(R.id.nav_host_fragment) as NavHostFragment
+-        navController = navHostFragment.navController
+ 
+ 
++        val navView: BottomNavigationView = binding.navView
++        val navController = findNavController(R.id.nav_host_fragment_activity_main)
++        val appBarConfiguration = AppBarConfiguration(
++            setOf( R.id.navigation_home, R.id.navigation_analyze, R.id.navigation_history ) )
++        setupActionBarWithNavController(navController, appBarConfiguration)
++        navView.setupWithNavController(navController)
+ 
+         // Cek dan buat Device ID
+         val deviceIdKey = "device_id"
+@@ -64,6 +67,8 @@
+         }, 2000)
+ 
+ 
++        setContentView(binding.root)
++
+ 
+ 
+     }
+Index: app/src/main/res/layout/activity_main.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"utf-8\"?>\n<androidx.constraintlayout.widget.ConstraintLayout xmlns:android=\"http://schemas.android.com/apk/res/android\"\n    xmlns:app=\"http://schemas.android.com/apk/res-auto\"\n    android:layout_width=\"match_parent\"\n    android:layout_height=\"match_parent\">\n\n\n    <fragment\n        android:id=\"@+id/nav_host_fragment\"\n        android:name=\"androidx.navigation.fragment.NavHostFragment\"\n        android:layout_width=\"match_parent\"\n        android:layout_height=\"0dp\"\n        app:defaultNavHost=\"true\"\n        app:layout_constraintBottom_toTopOf=\"@id/nav_view\"\n        app:layout_constraintLeft_toLeftOf=\"parent\"\n        app:layout_constraintRight_toRightOf=\"parent\"\n        app:layout_constraintTop_toTopOf=\"parent\"\n        app:navGraph=\"@navigation/mobile_navigation\" />\n\n    <com.google.android.material.bottomnavigation.BottomNavigationView\n        android:id=\"@+id/nav_view\"\n        android:layout_width=\"0dp\"\n        android:layout_height=\"wrap_content\"\n        android:layout_marginStart=\"0dp\"\n        android:layout_marginEnd=\"0dp\"\n        android:padding=\"10dp\"\n        android:background=\"?android:attr/windowBackground\"\n        app:layout_constraintBottom_toBottomOf=\"parent\"\n        app:layout_constraintLeft_toLeftOf=\"parent\"\n        app:layout_constraintRight_toRightOf=\"parent\"\n        app:menu=\"@menu/bottom_nav_menu\" />\n\n\n</androidx.constraintlayout.widget.ConstraintLayout>\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/res/layout/activity_main.xml b/app/src/main/res/layout/activity_main.xml
+--- a/app/src/main/res/layout/activity_main.xml	(revision 422307c7dfb7c86a57abe42034d5fe38da86fd99)
++++ b/app/src/main/res/layout/activity_main.xml	(date 1733041058976)
+@@ -4,9 +4,8 @@
+     android:layout_width="match_parent"
+     android:layout_height="match_parent">
+ 
+-
+     <fragment
+-        android:id="@+id/nav_host_fragment"
++        android:id="@+id/nav_host_fragment_activity_main"
+         android:name="androidx.navigation.fragment.NavHostFragment"
+         android:layout_width="match_parent"
+         android:layout_height="0dp"
+@@ -29,6 +28,4 @@
+         app:layout_constraintLeft_toLeftOf="parent"
+         app:layout_constraintRight_toRightOf="parent"
+         app:menu="@menu/bottom_nav_menu" />
+-
+-
+ </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,0 +1,26 @@
+Index: app/src/main/res/values/splash.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"utf-8\"?>\n<resources>\n    <style name=\"SplashTheme\" parent=\"Theme.SplashScreen\">\n        <item name=\"windowSplashScreenBackground\">@color/red_kaizen</item>\n        <item name=\"windowSplashScreenAnimatedIcon\">@drawable/splash_logo</item>\n        <item name=\"windowSplashScreenAnimationDuration\">1000</item>\n        <item name=\"postSplashScreenTheme\">@style/Theme.KaizenSpeaking</item>\n\n        <!-- Ensure no ActionBar after splash screen -->\n        <item name=\"windowActionBar\">false</item>\n        <item name=\"windowNoTitle\">true</item>\n    </style>\n</resources>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/res/values/splash.xml b/app/src/main/res/values/splash.xml
+--- a/app/src/main/res/values/splash.xml	(revision ede2ee5e7f48d42e38e6d609122e6109ea53dee4)
++++ b/app/src/main/res/values/splash.xml	(date 1732107068634)
+@@ -1,10 +1,12 @@
+ <?xml version="1.0" encoding="utf-8"?>
+ <resources>
+     <style name="SplashTheme" parent="Theme.SplashScreen">
+-        <item name="windowSplashScreenBackground">@color/red_kaizen</item>
+-        <item name="windowSplashScreenAnimatedIcon">@drawable/splash_logo</item>
+-        <item name="windowSplashScreenAnimationDuration">1000</item>
++        <item name="windowSplashScreenBackground">@color/white</item>
++        <item name="windowSplashScreenAnimatedIcon">@drawable/splash_screen</item>
++        <item name="windowSplashScreenAnimationDuration">5000</item>
+         <item name="postSplashScreenTheme">@style/Theme.KaizenSpeaking</item>
++        <item name="android:layout_width">match_parent</item>
++        <item name="android:layout_height">match_parent</item>
+ 
+         <!-- Ensure no ActionBar after splash screen -->
+         <item name="windowActionBar">false</item>
